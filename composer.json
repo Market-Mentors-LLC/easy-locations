@@ -5,14 +5,32 @@
     "license": "GPLv2",
     "autoload": {
         "psr-4": {
-            "MarketMentors\\EasyLocations\\": "src/"
+            "MarketMentors\\EasyLocations\\": ""
         }
     },
     "authors": [
         {
+            "name": "Market Mentors, LLC.",
+            "email": "accounts@marketmentors.com",
+            "role": "Company"
+        },
+        {
             "name": "Tyler Seabury",
-            "email": "tyler@marketmentors.com"
+            "email": "tyler@marketmentors.com",
+            "role": "Developer"
+        },
+        {
+          "name": "Devon LaChance",
+          "email": "dlachance@marketmentors.com",
+          "role": "Developer"
         }
     ],
-    "require": {}
+    "require": {
+      "php": ">=8.2",
+      "yahnis-elsts/plugin-update-checker": "^5.0",
+      "tgmpa/tgm-plugin-activation": "^2.0"
+    },
+    "require-dev": {
+        "php-stubs/wordpress-stubs": "^6.8"
+    }
 }

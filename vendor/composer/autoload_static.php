@@ -6,6 +6,11 @@ namespace Composer\Autoload;
 
 class ComposerStaticInita567afa25de7b8d69fafa1d783af6ae9
 {
+    public static $files = array (
+        'a5f882d89ab791a139cd2d37e50cdd80' => __DIR__ . '/..' . '/tgmpa/tgm-plugin-activation/class-tgm-plugin-activation.php',
+        'f6d4f6bcee7247df6b777884c3e22f98' => __DIR__ . '/..' . '/yahnis-elsts/plugin-update-checker/load-v5p6.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'M' => 
         array (
@@ -16,7 +21,7 @@ class ComposerStaticInita567afa25de7b8d69fafa1d783af6ae9
     public static $prefixDirsPsr4 = array (
         'MarketMentors\\EasyLocations\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/src',
+            0 => __DIR__ . '/../..' . '/',
         ),
     );
 

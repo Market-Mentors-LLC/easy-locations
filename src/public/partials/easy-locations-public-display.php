@@ -5,11 +5,10 @@
  *
  * This file is used to markup the public-facing aspects of the plugin.
  *
- * @link       https://https://marketmentors.com/
- * @since      1.0.0
+ * @link       https://marketmentors.com
+ * @since      0.0.1
  *
  * @package    Easy_Locations
- * @subpackage Easy_Locations/public/partials
  */
 ?>
 
