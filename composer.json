@@ -1,0 +1,18 @@
+{
+    "name": "market-mentors/easy-locations",
+    "description": "A WordPress plugin that adds easy location management, listing, and maps functionality.",
+    "type": "wordpress-plugin",
+    "license": "GPLv2",
+    "autoload": {
+        "psr-4": {
+            "MarketMentors\\EasyLocations\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tyler Seabury",
+            "email": "tyler@marketmentors.com"
+        }
+    ],
+    "require": {}
+}
