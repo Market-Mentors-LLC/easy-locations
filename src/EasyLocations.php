@@ -6,6 +6,8 @@ use \YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 use \YahnisElsts\PluginUpdateChecker\v5\PluginUpdateChecker;
 use MarketMentors\EasyLocations\src\admin\AdminController;
 use MarketMentors\EasyLocations\src\public\PublicController;
+use MarketMentors\EasyLocations\src\integrations\shortcode\MapSimple;
+use MarketMentors\EasyLocations\src\models\Location;
 
 /**
  * The file that defines the core plugin class
@@ -116,6 +118,9 @@ class EasyLocations
     ]);
     $this->requiredPluginRequisitioner->register();
 
+    // Initialize the Location post type
+    new Location();
+
     $this->loader = new Loader();
     $this->define_admin_hooks();
     $this->define_public_hooks();
@@ -161,6 +166,8 @@ class EasyLocations
   public function run()
   {
     $this->loader->run();
+
+    new MapSimple();
   }
 
   /**
