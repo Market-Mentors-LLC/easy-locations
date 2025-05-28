@@ -1,36 +1,36 @@
 {
-    "name": "market-mentors/easy-locations",
-    "description": "A WordPress plugin that adds easy location management, listing, and maps functionality.",
-    "type": "wordpress-plugin",
-    "license": "GPLv2",
-    "autoload": {
-        "psr-4": {
-            "MarketMentors\\EasyLocations\\": ""
-        }
-    },
-    "authors": [
-        {
-            "name": "Market Mentors, LLC.",
-            "email": "accounts@marketmentors.com",
-            "role": "Company"
-        },
-        {
-            "name": "Tyler Seabury",
-            "email": "tyler@marketmentors.com",
-            "role": "Developer"
-        },
-        {
-          "name": "Devon LaChance",
-          "email": "dlachance@marketmentors.com",
-          "role": "Developer"
-        }
-    ],
-    "require": {
-      "php": ">=8.2",
-      "yahnis-elsts/plugin-update-checker": "^5.0",
-      "tgmpa/tgm-plugin-activation": "^2.0"
-    },
-    "require-dev": {
-        "php-stubs/wordpress-stubs": "^6.8"
+  "name": "market-mentors/easy-locations",
+  "description": "A WordPress plugin that adds easy location management, listing, and maps functionality.",
+  "type": "wordpress-plugin",
+  "license": "GPLv2",
+  "autoload": {
+    "psr-4": {
+      "MarketMentors\\EasyLocations\\": ""
     }
+  },
+  "authors": [
+    {
+      "name": "Market Mentors, LLC.",
+      "email": "accounts@marketmentors.com",
+      "role": "Company"
+    },
+    {
+      "name": "Tyler Seabury",
+      "email": "tyler@marketmentors.com",
+      "role": "Developer"
+    },
+    {
+      "name": "Devon LaChance",
+      "email": "dlachance@marketmentors.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "yahnis-elsts/plugin-update-checker": "^4.13",
+    "tgmpa/tgm-plugin-activation": "^2.6.1"
+  },
+  "require-dev": {
+    "php-stubs/wordpress-stubs": "^6.8"
+  }
 }
