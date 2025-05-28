@@ -1,5 +1,30 @@
 <?php
 
+/**
+ * The plugin bootstrap file
+ *
+ * This file is read by WordPress to generate the plugin information in the plugin
+ * admin area. This file also includes all of the dependencies used by the plugin,
+ * registers the activation and deactivation functions, and defines a function
+ * that starts the plugin.
+ *
+ * @link              https://marketmentors.com
+ * @since             0.0.1
+ * @package           Easy_Locations
+ *
+ * @wordpress-plugin
+ * Plugin Name:       Easy Locations
+ * Plugin URI:        https://https://github.com/Market-Mentors-LLC/easy-locations
+ * Description:       A WordPress plugin that adds easy location management, listing, and maps functionality.
+ * Version:           0.0.2
+ * Author:            Market Mentors, LLC.
+ * Author URI:        https://marketmentors.com/
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain:       easy-locations
+ * Domain Path:       /languages
+ */
+
 declare(strict_types=1);
 /*⣿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠋⠉⠈⠉⠉⠉⠉⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⡿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⢿⣿⣿⣿⣿
@@ -72,33 +97,7 @@ if (version_compare($min_wp_v, \get_bloginfo('version'), '>=')) {
  * Currently plugin version.
  * Start at version 0.0.1 and use SemVer - https://semver.org
  */
-define('EASY_LOCATIONS_VERSION', '0.0.1');
-
-/**
- * The plugin bootstrap file
- *
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
- *
- * @link              https://marketmentors.com
- * @since             0.0.1
- * @package           Easy_Locations
- *
- * @wordpress-plugin
- * Plugin Name:       Easy Locations
- * Plugin URI:        https://https://github.com/Market-Mentors-LLC/easy-locations
- * Description:       A WordPress plugin that adds easy location management, listing, and maps functionality.
- * Version:           0.0.1
- * Author:            Market Mentors, LLC.
- * Author URI:        https://marketmentors.com/
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       easy-locations
- * Domain Path:       /languages
- */
-
+define('EASY_LOCATIONS_VERSION', '0.0.2');
 
 /**
  * The code that runs during plugin activation.

@@ -106,6 +106,9 @@ class EasyLocations
     }
     $this->plugin_name = 'easy-locations';
 
+    // Register the Location post type early
+    add_action('init', [Location::class, 'register_post_type'], 0);
+
     $this->requiredPluginRequisitioner = new RequiredPluginRequisitioner([
       [
         'name' => 'Advanced Custom Fields PRO',
@@ -117,9 +120,6 @@ class EasyLocations
       ]
     ]);
     $this->requiredPluginRequisitioner->register();
-
-    // Initialize the Location post type
-    new Location();
 
     $this->loader = new Loader();
     $this->define_admin_hooks();

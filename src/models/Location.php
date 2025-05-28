@@ -8,11 +8,10 @@ class Location
 {
   public function __construct()
   {
-    add_action('init', [$this, 'register_post_type']);
     add_action('acf/init', [$this, 'register_fields']);
   }
 
-  public function register_post_type()
+  public static function register_post_type()
   {
     $labels = [
       'name'               => 'Locations',
