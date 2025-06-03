@@ -6,36 +6,35 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit7eeb44eac56c367fbf8f3266befb9971
 {
-    public static $files = array (
-        'a5f882d89ab791a139cd2d37e50cdd80' => __DIR__ . '/..' . '/tgmpa/tgm-plugin-activation/class-tgm-plugin-activation.php',
-        'f6d4f6bcee7247df6b777884c3e22f98' => __DIR__ . '/..' . '/yahnis-elsts/plugin-update-checker/load-v5p6.php',
-    );
+  public static $files = array(
+    'a5f882d89ab791a139cd2d37e50cdd80' => __DIR__ . '/..' . '/tgmpa/tgm-plugin-activation/class-tgm-plugin-activation.php',
+    '7166494aeff09009178f278afd86c83f' => __DIR__ . '/..' . '/yahnis-elsts/plugin-update-checker/load-v4p13.php',
+  );
 
-    public static $prefixLengthsPsr4 = array (
-        'M' => 
-        array (
-            'MarketMentors\\EasyLocations\\' => 28,
-        ),
-    );
+  public static $prefixLengthsPsr4 = array(
+    'M' =>
+    array(
+      'MarketMentors\\EasyLocations\\' => 28,
+    ),
+  );
 
-    public static $prefixDirsPsr4 = array (
-        'MarketMentors\\EasyLocations\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/',
-        ),
-    );
+  public static $prefixDirsPsr4 = array(
+    'MarketMentors\\EasyLocations\\' =>
+    array(
+      0 => __DIR__ . '/../..' . '/',
+    ),
+  );
 
-    public static $classMap = array (
-        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-    );
+  public static $classMap = array(
+    'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+  );
 
-    public static function getInitializer(ClassLoader $loader)
-    {
-        return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit7eeb44eac56c367fbf8f3266befb9971::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit7eeb44eac56c367fbf8f3266befb9971::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit7eeb44eac56c367fbf8f3266befb9971::$classMap;
-
-        }, null, ClassLoader::class);
-    }
+  public static function getInitializer(ClassLoader $loader)
+  {
+    return \Closure::bind(function () use ($loader) {
+      $loader->prefixLengthsPsr4 = ComposerStaticInit7eeb44eac56c367fbf8f3266befb9971::$prefixLengthsPsr4;
+      $loader->prefixDirsPsr4 = ComposerStaticInit7eeb44eac56c367fbf8f3266befb9971::$prefixDirsPsr4;
+      $loader->classMap = ComposerStaticInit7eeb44eac56c367fbf8f3266befb9971::$classMap;
+    }, null, ClassLoader::class);
+  }
 }
