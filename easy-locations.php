@@ -76,7 +76,7 @@ require_once $composer;
 /**
  * Ensure compatible version of PHP is used
  */
-$min_php_v = 7.4;
+$min_php_v = 8.2;
 if (version_compare("$min_php_v", phpversion(), '>=')) {
   throw new \Error(
     "Invalid PHP version: You must be using PHP $min_php_v or greater.",
