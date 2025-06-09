@@ -16,7 +16,7 @@
  * Plugin Name:       Easy Locations
  * Plugin URI:        https://https://github.com/Market-Mentors-LLC/easy-locations
  * Description:       A WordPress plugin that adds easy location management, listing, and maps functionality.
- * Version:           0.0.3
+ * Version:           0.0.4
  * Author:            Market Mentors, LLC.
  * Author URI:        https://marketmentors.com/
  * License:           GPL-2.0+
@@ -97,7 +97,7 @@ if (version_compare($min_wp_v, \get_bloginfo('version'), '>=')) {
  * Currently plugin version.
  * Start at version 0.0.1 and use SemVer - https://semver.org
  */
-define('EASY_LOCATIONS_VERSION', '0.0.3');
+define('EASY_LOCATIONS_VERSION', '0.0.4');
 
 /**
  * The code that runs during plugin activation.
