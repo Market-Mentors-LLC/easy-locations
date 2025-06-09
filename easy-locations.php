@@ -128,11 +128,11 @@ function run_easy_locations()
    */
   $plugin = new EasyLocations(
     new UpdaterConfig(
-      'https://github.com/Market-Mentors-LLC/easy-locations',
-      __FILE__,
-      'easy-locations',
-      'master',
-      ''
+      metadataUrl: 'https://github.com/Market-Mentors-LLC/easy-locations',
+      fullPath: __FILE__,
+      slug: 'easy-locations',
+      branch: 'master',
+      authToken: '',
     )
   );
   $plugin->run();
