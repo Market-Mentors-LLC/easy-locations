@@ -58,6 +58,7 @@ use MarketMentors\EasyLocations\src\Activator;
 use MarketMentors\EasyLocations\src\Deactivator;
 use MarketMentors\EasyLocations\src\EasyLocations;
 use MarketMentors\EasyLocations\src\UpdaterConfig;
+
 // If this file is called directly, abort.
 if (! defined('WPINC')) {
   die;
@@ -98,6 +99,7 @@ if (version_compare($min_wp_v, \get_bloginfo('version'), '>=')) {
  * Start at version 0.0.1 and use SemVer - https://semver.org
  */
 define('EASY_LOCATIONS_VERSION', '0.0.4');
+define('EASY_LOCATIONS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
 /**
  * The code that runs during plugin activation.

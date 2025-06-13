@@ -45,14 +45,31 @@ class MapSimple
       var storeLocations = <?php echo $locations_json; ?>;
 
       // Define colors for each category
-      var categoryColors = {
-        "Asphalt Emulsion Plant": "#FF0000", // Red
-        "Ready Mix Concrete Plant": "#00FF00", // Green
-        "Aggregate Quarry": "#0000FF", // Blue
-        "Office / Operations Facility": "#FFFF00", // Yellow
-        "Liquid Asphalt Terminal": "#FFA500", // Orange
-        "Hot Mix Plant": "#800080" // Purple
-        // Add more categories and colors if needed
+      var categoryDecorations = {
+        "Asphalt Emulsion Plant": {
+          color: "#FF0000", // Red
+          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/asphalt.svg'); ?>,
+        },
+        "Ready Mix Concrete Plant": {
+          color: "#00FF00", // Green
+          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/readymix.svg'); ?>,
+        },
+        "Aggregate Quarry": {
+          color: "#0000FF", // Blue
+          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/quarry.svg'); ?>,
+        },
+        "Office / Operations Facility": {
+          color: "#FFFF00", // Yellow
+          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/offices.svg'); ?>,
+        },
+        "Liquid Asphalt Terminal": {
+          color: "#FFA500", // Orange
+          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/liquid.svg'); ?>,
+        },
+        "Hot Mix Plant": {
+          color: "#800080", // Purple
+          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/hotmix.svg'); ?>,
+        },
       };
 
       // Initialize the Google Map - Making it a global function
@@ -87,15 +104,10 @@ class MapSimple
 
         // Create and place markers for each store location
         storeLocations.forEach(function(store) {
-          var pinColor = categoryColors[store.category] || "#808080"; // Default to grey if category not found
+          var pinColor = categoryDecorations[store.category].color || "#808080"; // Default to grey if category not found
+          var iconSvg = categoryDecorations[store.category].icon_svg || null;
 
-          // Use PinElement for colored markers
-          const pinElement = new PinElement({
-            background: pinColor,
-            borderColor: '#000', // Optional border color
-            glyphColor: '#FFF' // Optional color for the default dot/glyph
-          });
-
+          // Create marker with custom SVG icon if available
           const marker = new AdvancedMarkerElement({
             position: {
               lat: store.lat,
@@ -103,7 +115,7 @@ class MapSimple
             },
             map: map,
             title: store.name, // Tooltip on hover
-            content: pinElement.element, // Use PinElement for custom appearance
+            content: iconSvg ? createCustomIcon(iconSvg, pinColor) : createDefaultPin(pinColor),
           });
 
           // Create an InfoWindow for each marker
@@ -116,6 +128,27 @@ class MapSimple
             infoWindow.open(map, marker);
           });
         });
+      }
+
+      // Helper function to create a custom SVG icon
+      function createCustomIcon(svgContent, color) {
+        const div = document.createElement('div');
+        div.innerHTML = svgContent;
+        const svg = div.firstChild;
+        svg.style.width = '32px';
+        svg.style.height = '32px';
+        svg.style.fill = color;
+        return div;
+      }
+
+      // Helper function to create default pin if no SVG is available
+      function createDefaultPin(color) {
+        const pinElement = new PinElement({
+          background: color,
+          borderColor: '#000',
+          glyphColor: '#FFF'
+        });
+        return pinElement.element;
       }
 
       // Function to load the Google Maps API script
