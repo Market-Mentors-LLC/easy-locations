@@ -48,27 +48,27 @@ class MapSimple
       var categoryDecorations = {
         "Asphalt Emulsion Plant": {
           color: "#FF0000", // Red
-          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/asphalt.svg'); ?>,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/asphalt.svg'); ?>`,
         },
         "Ready Mix Concrete Plant": {
           color: "#00FF00", // Green
-          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/readymix.svg'); ?>,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/readymix.svg'); ?>`,
         },
         "Aggregate Quarry": {
           color: "#0000FF", // Blue
-          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/quarry.svg'); ?>,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/quarry.svg'); ?>`,
         },
         "Office / Operations Facility": {
           color: "#FFFF00", // Yellow
-          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/offices.svg'); ?>,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/offices.svg'); ?>`,
         },
         "Liquid Asphalt Terminal": {
           color: "#FFA500", // Orange
-          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/liquid.svg'); ?>,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/liquid.svg'); ?>`,
         },
         "Hot Mix Plant": {
           color: "#800080", // Purple
-          icon_svg: <?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/hotmix.svg'); ?>,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/hotmix.svg'); ?>`,
         },
       };
 
