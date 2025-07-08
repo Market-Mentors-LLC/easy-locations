@@ -1,0 +1,71 @@
+<?php return array(
+    'root' => array(
+        'name' => 'market-mentors/easy-locations',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => '8248b59fc321be1c68404ae239f9fb0d75d29872',
+        'type' => 'wordpress-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => true,
+    ),
+    'versions' => array(
+        'grogy/php-parallel-lint' => array(
+            'dev_requirement' => true,
+            'replaced' => array(
+                0 => '*',
+            ),
+        ),
+        'jakub-onderka/php-parallel-lint' => array(
+            'dev_requirement' => true,
+            'replaced' => array(
+                0 => '*',
+            ),
+        ),
+        'market-mentors/easy-locations' => array(
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => '8248b59fc321be1c68404ae239f9fb0d75d29872',
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'php-parallel-lint/php-parallel-lint' => array(
+            'pretty_version' => 'v1.4.0',
+            'version' => '1.4.0.0',
+            'reference' => '6db563514f27e19595a19f45a4bf757b6401194e',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../php-parallel-lint/php-parallel-lint',
+            'aliases' => array(),
+            'dev_requirement' => true,
+        ),
+        'php-stubs/wordpress-stubs' => array(
+            'pretty_version' => 'v6.8.1',
+            'version' => '6.8.1.0',
+            'reference' => '92e444847d94f7c30f88c60004648f507688acd5',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../php-stubs/wordpress-stubs',
+            'aliases' => array(),
+            'dev_requirement' => true,
+        ),
+        'tgmpa/tgm-plugin-activation' => array(
+            'pretty_version' => '2.6.1',
+            'version' => '2.6.1.0',
+            'reference' => 'c626d0d91fc8ef24916e809c7b79eeafab1c1cac',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../tgmpa/tgm-plugin-activation',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'yahnis-elsts/plugin-update-checker' => array(
+            'pretty_version' => 'v5.6',
+            'version' => '5.6.0.0',
+            'reference' => 'a2db6871deec989a74e1f90fafc6d58ae526a879',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../yahnis-elsts/plugin-update-checker',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);
