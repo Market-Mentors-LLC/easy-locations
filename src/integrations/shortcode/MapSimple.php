@@ -48,27 +48,27 @@ class MapSimple
       var categoryDecorations = {
         "Asphalt Emulsion Plant": {
           color: "#FF0000", // Red
-          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/asphalt.svg'); ?>`,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/asphalt.svg'); ?>`,
         },
         "Ready Mix Concrete Plant": {
           color: "#00FF00", // Green
-          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/readymix.svg'); ?>`,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/readymix.svg'); ?>`,
         },
         "Aggregate Quarry": {
           color: "#0000FF", // Blue
-          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/quarry.svg'); ?>`,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/quarry.svg'); ?>`,
         },
         "Office / Operations Facility": {
           color: "#FFFF00", // Yellow
-          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/offices.svg'); ?>`,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/offices.svg'); ?>`,
         },
         "Liquid Asphalt Terminal": {
           color: "#FFA500", // Orange
-          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/liquid.svg'); ?>`,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/liquid.svg'); ?>`,
         },
         "Hot Mix Plant": {
           color: "#800080", // Purple
-          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons/hotmix.svg'); ?>`,
+          icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/hotmix.svg'); ?>`,
         },
       };
 
@@ -103,7 +103,7 @@ class MapSimple
         map.fitBounds(bounds);
 
         // Create and place markers for each store location
-        storeLocations.forEach(function(store) {
+        const markers = storeLocations.map((store) => {
           var pinColor = categoryDecorations[store.category].color || "#808080"; // Default to grey if category not found
           var iconSvg = categoryDecorations[store.category].icon_svg || null;
 
@@ -119,15 +119,26 @@ class MapSimple
           });
 
           // Create an InfoWindow for each marker
-          const infoWindow = new google.maps.InfoWindow({
+          marker.infoWindow = new google.maps.InfoWindow({
             content: `<h3>${store.name}</h3><p>${store.info}</p>`,
           });
 
-          // Add a click listener to open the InfoWindow - **UPDATED for Advanced Markers**
-          marker.addListener("gmp-click", () => {
-            infoWindow.open(map, marker);
-          });
+          return marker;
         });
+
+        const closeAllInfoWindows = () => {
+          for (const marker of markers) {
+            marker.infoWindow.close();
+          }
+        }
+
+        for (const marker of markers) {
+          marker.addListener("gmp-click", () => {
+            closeAllInfoWindows();
+            marker.infoWindow.open(map, marker);
+          });
+        }
+
       }
 
       // Helper function to create a custom SVG icon
