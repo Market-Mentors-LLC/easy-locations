@@ -44,31 +44,40 @@ class MapSimple
       // Get locations from WordPress
       var storeLocations = <?php echo $locations_json; ?>;
 
+      /** @type {'svg' | 'png'} */
+      const icon_mode = 'png';
+
       // Define colors for each category
       var categoryDecorations = {
         "Asphalt Emulsion Plant": {
           color: "#FF0000", // Red
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/asphalt.svg'); ?>`,
+          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/asmg-logo.png'); ?>`
         },
         "Ready Mix Concrete Plant": {
           color: "#00FF00", // Green
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/readymix.svg'); ?>`,
+          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/asmg-logo.png'); ?>`
         },
         "Aggregate Quarry": {
           color: "#0000FF", // Blue
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/quarry.svg'); ?>`,
+          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/asmg-logo.png'); ?>`
         },
         "Office / Operations Facility": {
           color: "#FFFF00", // Yellow
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/offices.svg'); ?>`,
+          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/asmg-logo.png'); ?>`
         },
         "Liquid Asphalt Terminal": {
           color: "#FFA500", // Orange
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/liquid.svg'); ?>`,
+          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/asmg-logo.png'); ?>`
         },
         "Hot Mix Plant": {
           color: "#800080", // Purple
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/hotmix.svg'); ?>`,
+          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/asmg-logo.png'); ?>`
         },
       };
 
@@ -105,7 +114,15 @@ class MapSimple
         // Create and place markers for each store location
         const markers = storeLocations.map((store) => {
           var pinColor = categoryDecorations[store.category].color || "#808080"; // Default to grey if category not found
-          var iconSvg = categoryDecorations[store.category].icon_svg || null;
+
+          let iconContent = null;
+          if (icon_mode === 'svg') {
+            iconContent = categoryDecorations[store.category].icon_svg || null;
+          }
+          if (icon_mode === 'png') {
+            iconContent = categoryDecorations[store.category].icon_png || null;
+          }
+
 
           // Create marker with custom SVG icon if available
           const marker = new AdvancedMarkerElement({
@@ -115,7 +132,7 @@ class MapSimple
             },
             map: map,
             title: store.name, // Tooltip on hover
-            content: iconSvg ? createCustomIcon(iconSvg, pinColor) : createDefaultPin(pinColor),
+            content: iconContent ? createCustomIcon(iconContent, pinColor) : createDefaultPin(pinColor),
           });
 
           // Create an InfoWindow for each marker
