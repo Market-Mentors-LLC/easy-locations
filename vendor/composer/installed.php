@@ -3,7 +3,7 @@
         'name' => 'market-mentors/easy-locations',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '8248b59fc321be1c68404ae239f9fb0d75d29872',
+        'reference' => 'b50ecbdc3956a72da74c9f0da75e0bc7c3afaf1c',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -25,7 +25,7 @@
         'market-mentors/easy-locations' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '8248b59fc321be1c68404ae239f9fb0d75d29872',
+            'reference' => 'b50ecbdc3956a72da74c9f0da75e0bc7c3afaf1c',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

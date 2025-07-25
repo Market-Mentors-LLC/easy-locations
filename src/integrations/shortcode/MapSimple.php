@@ -52,32 +52,32 @@ class MapSimple
         "Asphalt Emulsion Plant": {
           color: "#FF0000", // Red
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/asphalt.svg'); ?>`,
-          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/ASMG_SQ.png'); ?>`
+          icon_png: `<img src="<?= \EASY_LOCATIONS_PLUGIN_URL . 'src/public/media/icons-v2/ASMG_SQ.png'; ?>" alt="map icon" />`
         },
         "Ready Mix Concrete Plant": {
           color: "#00FF00", // Green
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/readymix.svg'); ?>`,
-          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/ASMG_SQ.png'); ?>`
+          icon_png: `<img src="<?= \EASY_LOCATIONS_PLUGIN_URL . 'src/public/media/icons-v2/ASMG_SQ.png'; ?>" alt="map icon" />`
         },
         "Aggregate Quarry": {
           color: "#0000FF", // Blue
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/quarry.svg'); ?>`,
-          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/ASMG_SQ.png'); ?>`
+          icon_png: `<img src="<?= \EASY_LOCATIONS_PLUGIN_URL . 'src/public/media/icons-v2/ASMG_SQ.png'; ?>" alt="map icon" />`
         },
         "Office / Operations Facility": {
           color: "#FFFF00", // Yellow
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/offices.svg'); ?>`,
-          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/ASMG_SQ.png'); ?>`
+          icon_png: `<img src="<?= \EASY_LOCATIONS_PLUGIN_URL . 'src/public/media/icons-v2/ASMG_SQ.png'; ?>" alt="map icon" />`
         },
         "Liquid Asphalt Terminal": {
           color: "#FFA500", // Orange
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/liquid.svg'); ?>`,
-          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/ASMG_SQ.png'); ?>`
+          icon_png: `<img src="<?= \EASY_LOCATIONS_PLUGIN_URL . 'src/public/media/icons-v2/ASMG_SQ.png'; ?>" alt="map icon" />`
         },
         "Hot Mix Plant": {
           color: "#800080", // Purple
           icon_svg: `<?= file_get_contents(EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/hotmix.svg'); ?>`,
-          icon_png: `<?= file_get_contents(\EASY_LOCATIONS_PLUGIN_DIR . 'src/public/media/icons-v2/ASMG_SQ.png'); ?>`
+          icon_png: `<img src="<?= \EASY_LOCATIONS_PLUGIN_URL . 'src/public/media/icons-v2/ASMG_SQ.png'; ?>" alt="map icon" />`
         },
       };
 
