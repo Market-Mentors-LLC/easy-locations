@@ -9,6 +9,8 @@ class Location
   public function __construct()
   {
     add_action('acf/init', [$this, 'register_fields']);
+    add_action('acf/init', [$this, 'register_post_type']);
+    add_action('acf/init', [$this, 'register_taxonomies']);
   }
 
   public static function register_post_type()
@@ -44,6 +46,41 @@ class Location
     register_post_type('location', $args);
   }
 
+  public function register_taxonomies()
+  {
+    register_taxonomy('location-type', [
+      'location',
+    ], [
+      'labels' => [
+        'name' => 'Location Types',
+        'singular_name' => 'Location Type',
+        'menu_name' => 'Location Types',
+        'all_items' => 'All Location Types',
+        'edit_item' => 'Edit Location Type',
+        'view_item' => 'View Location Type',
+        'update_item' => 'Update Location Type',
+        'add_new_item' => 'Add New Location Type',
+        'new_item_name' => 'New Location Type Name',
+        'search_items' => 'Search Location Types',
+        'popular_items' => 'Popular Location Types',
+        'separate_items_with_commas' => 'Separate location types with commas',
+        'add_or_remove_items' => 'Add or remove location types',
+        'choose_from_most_used' => 'Choose from the most used location types',
+        'not_found' => 'No location types found',
+        'no_terms' => 'No location types',
+        'items_list_navigation' => 'Location Types list navigation',
+        'items_list' => 'Location Types list',
+        'back_to_items' => '← Go to location types',
+        'item_link' => 'Location Type Link',
+        'item_link_description' => 'A link to a location type',
+      ],
+      'description' => 'The Location Type is the categorization of the location.',
+      'public' => true,
+      'show_in_menu' => true,
+      'show_in_rest' => true,
+    ]);
+  }
+
   public function register_fields()
   {
     if (function_exists('acf_add_local_field_group')) {
@@ -51,6 +88,14 @@ class Location
         'key' => 'group_location_fields',
         'title' => 'Location Details',
         'fields' => [
+          [
+            'key' => 'field_category',
+            'label' => 'Category',
+            'name' => 'category',
+            'type' => 'text',
+            'required' => 1,
+            'instructions' => 'Enter the location category (e.g., "Hot Mix Plant", "Office / Operations Facility")',
+          ],
           [
             'key' => 'field_latitude',
             'label' => 'Latitude',
@@ -66,14 +111,6 @@ class Location
             'type' => 'number',
             'required' => 1,
             'instructions' => 'Enter the location longitude',
-          ],
-          [
-            'key' => 'field_category',
-            'label' => 'Category',
-            'name' => 'category',
-            'type' => 'text',
-            'required' => 1,
-            'instructions' => 'Enter the location category (e.g., "Hot Mix Plant", "Office / Operations Facility")',
           ],
           [
             'key' => 'field_address',
@@ -94,6 +131,57 @@ class Location
           ],
         ],
       ]);
+
+      acf_add_local_field_group(array(
+        'key' => 'group_6880e6b68c628',
+        'title' => 'Location Type fields',
+        'fields' => array(
+          array(
+            'key' => 'field_6880e6b66811b',
+            'label' => 'Icon',
+            'name' => 'icon',
+            'aria-label' => '',
+            'type' => 'image',
+            'instructions' => '',
+            'required' => 0,
+            'conditional_logic' => 0,
+            'wrapper' => array(
+              'width' => '',
+              'class' => '',
+              'id' => '',
+            ),
+            'return_format' => 'array',
+            'library' => 'all',
+            'min_width' => '',
+            'min_height' => '',
+            'min_size' => '',
+            'max_width' => '',
+            'max_height' => '',
+            'max_size' => '',
+            'mime_types' => '',
+            'allow_in_bindings' => 0,
+            'preview_size' => 'medium',
+          ),
+        ),
+        'location' => array(
+          array(
+            array(
+              'param' => 'taxonomy',
+              'operator' => '==',
+              'value' => 'location-type',
+            ),
+          ),
+        ),
+        'menu_order' => 0,
+        'position' => 'normal',
+        'style' => 'default',
+        'label_placement' => 'top',
+        'instruction_placement' => 'label',
+        'hide_on_screen' => '',
+        'active' => true,
+        'description' => '',
+        'show_in_rest' => 0,
+      ));
     }
   }
 
@@ -115,13 +203,31 @@ class Location
           'name' => get_the_title(),
           'lat' => (float)get_field('latitude'),
           'lng' => (float)get_field('longitude'),
-          'category' => get_field('category'),
-          'info' => get_field('address'),
+          'location_type' => get_the_terms(get_the_ID(), 'location-type'),
+          'address' => get_field('address'),
         ];
       }
     }
     wp_reset_postdata();
 
     return $locations;
+  }
+
+  public static function get_all_location_types()
+  {
+    $location_types = get_terms([
+      'taxonomy' => 'location-type',
+      'hide_empty' => false,
+    ]);
+
+    $result = [];
+    foreach ($location_types as $term) {
+      $icon = get_field('icon', 'location-type_' . $term->term_id);
+      $result[] = [
+        'term' => $term,
+        'icon' => $icon,
+      ];
+    }
+    return $result;
   }
 }

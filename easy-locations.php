@@ -100,6 +100,7 @@ if (version_compare($min_wp_v, \get_bloginfo('version'), '>=')) {
  */
 define('EASY_LOCATIONS_VERSION', '0.0.11');
 define('EASY_LOCATIONS_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('EASY_LOCATIONS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 /**
  * The code that runs during plugin activation.

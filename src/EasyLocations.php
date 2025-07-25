@@ -7,6 +7,7 @@ use \YahnisElsts\PluginUpdateChecker\v5\PluginUpdateChecker;
 use MarketMentors\EasyLocations\src\admin\AdminController;
 use MarketMentors\EasyLocations\src\public\PublicController;
 use MarketMentors\EasyLocations\src\integrations\shortcode\MapSimple;
+use MarketMentors\EasyLocations\src\integrations\shortcode\MapComplex;
 use MarketMentors\EasyLocations\src\models\Location;
 
 /**
@@ -167,7 +168,9 @@ class EasyLocations
   {
     $this->loader->run();
 
+    new Location();
     new MapSimple();
+    new MapComplex();
   }
 
   /**

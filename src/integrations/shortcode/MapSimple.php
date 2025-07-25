@@ -137,7 +137,7 @@ class MapSimple
 
           // Create an InfoWindow for each marker
           marker.infoWindow = new google.maps.InfoWindow({
-            content: `<h3>${store.name}</h3><p>${store.info}</p>`,
+            content: `<h3>${store.name}</h3><p>${store.address}</p>`,
           });
 
           return marker;
