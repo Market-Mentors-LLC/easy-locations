@@ -416,7 +416,7 @@ class MapComplex
 
           const location_types = <?= json_encode($location_types) ?>;
 
-          console.log(location_types);
+          // console.log(location_types);
 
           const position_ware = {
             lat: 42.260394990146736,
@@ -578,7 +578,7 @@ class MapComplex
              * @returns {void}
              */
             checkIfShouldShow() {
-              console.log('checkIfShouldShow', this.type.term.slug);
+              // console.log('checkIfShouldShow', this.type.term.slug);
               const slugInstances = this.locationsManager.locations.map(
                 location => location.types.map(t => t.slug)
               ).flat();
@@ -723,6 +723,7 @@ class MapComplex
              * @param {object} meta
              * @param {array<object>} types
              * @param {LocationsManager} locationsManager
+             * 
              * 
              * @throws {Error} Location must have gps coordinates.
              * 
@@ -1107,6 +1108,7 @@ class MapComplex
            * @property {HTMLElement} filterListElement
            * @property {HTMLElement} locationsListElement
            * @property {google.maps.Map} mapInstance
+           * @property {google.maps.LatLngBounds} bounds
            * 
            * @method {void} addLocations
            * @method {void} closeAllInfoWindows
@@ -1128,6 +1130,7 @@ class MapComplex
               this.filterListElement = filterListElement;
               this.locationsListElement = locationsListElement;
               this.mapInstance = mapInstance;
+              this.bounds = new google.maps.LatLngBounds();
             }
 
             /**
@@ -1139,6 +1142,23 @@ class MapComplex
              */
             addLocations(locations) {
               this.locations = this.locations.concat(locations);
+
+              // Only extend bounds with valid locations that have proper coordinates
+              locations.forEach((location) => {
+                if (location && location.position &&
+                  typeof location.position.lat === 'number' &&
+                  typeof location.position.lng === 'number' &&
+                  !isNaN(location.position.lat) &&
+                  !isNaN(location.position.lng)) {
+                  console.log('location position', location.position);
+                  this.bounds.extend(location.position);
+                }
+              });
+
+              // Only fit bounds if we have valid bounds
+              if (!this.bounds.isEmpty()) {
+                this.mapInstance.fitBounds(this.bounds);
+              }
             }
 
             /**
@@ -1203,7 +1223,7 @@ class MapComplex
              * @returns {void}
              */
             renderFiltersList() {
-              console.log('renderFiltersList');
+              // console.log('renderFiltersList');
               this.filterListElement.innerHTML = '';
 
               this.filtersList.forEach(filter => {
@@ -1240,10 +1260,13 @@ class MapComplex
                     behavior: 'smooth'
                   });
 
-                  map.setCenter(position_default);
-                  console.log('setCenter', position_default);
-                  map.setZoom(8);
-                  console.log('setZoom', 8);
+                  // Only fit bounds if we have valid bounds, otherwise use default position
+                  if (!this.bounds.isEmpty()) {
+                    this.mapInstance.fitBounds(this.bounds);
+                  } else {
+                    this.mapInstance.setCenter(position_default);
+                    this.mapInstance.setZoom(8);
+                  }
                 }
               );
 
@@ -1256,7 +1279,7 @@ class MapComplex
              * @returns {void}
              */
             renderLocationsList() {
-              console.log('renderLocationsList');
+              // console.log('renderLocationsList');
               this.locationsListElement.innerHTML = '';
 
               const activeFilters = this.filtersList.filter(filter => filter.active);
@@ -1278,7 +1301,7 @@ class MapComplex
 
 
           async function initMap() {
-            console.log('initMap');
+            // console.log('initMap');
             const isSmallScreen = window.innerWidth < 960;
             const isPhone = window.innerWidth < 640;
 
@@ -1299,18 +1322,18 @@ class MapComplex
               },
               keyboardShortcuts: false,
             });
-            console.log('initMap done', map);
+            // console.log('initMap done', map);
             return map;
           }
 
           // Initialize and add the map
           let map = await initMap();
 
-          console.log('map', map);
+          // console.log('map', map);
 
           // Add the markers from the locations post types.
           const locations = <?= json_encode($locations) ?>;
-          console.log(locations);
+          // console.log(locations);
           // Sort the locations by post_title alphabetically acending.
           locations.sort((a, b) => {
             if (a.post_title < b.post_title) {
@@ -1326,7 +1349,6 @@ class MapComplex
           const locationsListElement = document.querySelector('.locations-list');
 
 
-
           const locationsManager = new LocationsManager(
             [],
             Object.values(location_types).map(type => new Filter(type)),
@@ -1335,7 +1357,7 @@ class MapComplex
             map
           );
 
-          console.log('locationsManager', locationsManager);
+          // console.log('locationsManager', locationsManager);
 
           const location_markers = locations.map(location => {
 
@@ -1382,7 +1404,7 @@ class MapComplex
             filter.checkIfShouldShow();
           });
 
-          console.log('location_markers', location_markers);
+          // console.log('location_markers', location_markers);
 
           locationsManager.renderFiltersList();
           locationsManager.renderLocationsList();
