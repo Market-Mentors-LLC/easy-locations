@@ -221,9 +221,9 @@ class MapComplex
 
         .locations-list .location {
           display: inline-grid;
-          grid-template-columns: 64px auto;
+          grid-template-columns: 57px auto;
           width: 100%;
-          margin: 1rem;
+          margin: .33rem;
           cursor: pointer;
           user-select: none;
         }
