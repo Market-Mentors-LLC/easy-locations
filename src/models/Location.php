@@ -112,6 +112,34 @@ class Location
             'required' => 1,
             'instructions' => 'Enter the location longitude',
           ],
+          // Location.php  (inside acf_add_local_field_group([... 'fields' => [ ... ] ]))
+
+
+
+
+
+
+
+
+[
+  'key' => 'field_phone',
+  'label' => 'Phone',
+  'name'  => 'phone',
+  'type'  => 'text',
+  'required' => 0,
+  'instructions' => 'Enter a phone number (e.g., 555-123-4567).',
+  'wrapper' => [
+    'width' => '',
+    'class' => '',
+    'id'    => '',
+  ],
+  'placeholder' => '(555) 123-4567',
+],
+
+
+
+
+
           [
             'key' => 'field_address',
             'label' => 'Address',
@@ -205,6 +233,7 @@ class Location
           'lng' => (float)get_field('longitude'),
           'location_type' => get_the_terms(get_the_ID(), 'location-type'),
           'address' => get_field('address'),
+          'phone' => (string) get_field('phone'), // <-- make sure this is here
         ];
       }
     }

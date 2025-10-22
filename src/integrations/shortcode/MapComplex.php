@@ -214,10 +214,7 @@ class MapComplex
           z-index: 10;
         }
 
-        .locations-list {
-          columns: 2;
-          padding: 0;
-        }
+       
 
         .locations-list .location {
           display: inline-grid;
@@ -239,27 +236,61 @@ class MapComplex
           transition: all 0.3s ease-in-out;
         }
 
+
+
+
+
+        /* Keep the color the same when hovered or active */
+.locations-list .location .meta-drawer-links a:hover,
+.locations-list .location .meta-drawer-links a:focus,
+.locations-list .location .meta-drawer-links a:active {
+  color: #000 !important;   /* don't fade or change */
+  opacity: 1 !important;
+  text-decoration: none;  /* optional, remove if you prefer no underline */
+  transform: none !important;  /* lock scale */
+}
+
+
         .locations-list .location .additional-meta-drawer.open {
           max-height: 500px;
         }
 
         .locations-list .location .additional-meta-drawer .meta-drawer-links {
-          display: flex;
-          justify-content: space-between;
-          width: 69%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: .75rem;           /* NEW: space between items */
+            flex-wrap: wrap;       /* NEW: wrap on narrow screens */
+            width: auto;   
         }
 
-        @media (max-width: 959px) {
-          .locations-list {
-            columns: 1;
-          }
-        }
+     /* Use grid instead of columns */
+.locations-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); /* Adjust width to fit your items */
+  gap: 1rem; /* spacing between items */
+  padding: 0;
+}
 
-        @media (min-width: 1366px) {
-          .locations-list {
-            columns: 3;
-          }
-        }
+/* Optional: adjust for smaller screens */
+@media (max-width: 959px) {
+  .locations-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1365px) {
+  .locations-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1366px) {
+  .locations-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 
         .locations-list .location .icon {
           position: relative;
@@ -301,7 +332,7 @@ class MapComplex
         .locations-list .location .content h3 {
           font-size: 1.125rem;
           font-weight: 600;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0rem;
         }
 
         .locations-list .location .content h3,
@@ -716,126 +747,108 @@ class MapComplex
            * 
            * @method {void} render
            */
-          class Location {
-            /**
-             * @param {google.maps.Map} map
-             * @param {string} title
-             * @param {object} meta
-             * @param {array<object>} types
-             * @param {LocationsManager} locationsManager
-             * 
-             * 
-             * @throws {Error} Location must have gps coordinates.
-             * 
-             */
-            constructor(map, title, address, types, lat, lng, locationsManager) {
-              this.map = map;
-              this.title = title;
-              this.address = address || '';
-              this.types = types || [];
-              this.locationsManager = locationsManager;
-              this.locationListElement = null;
-              this.marker = null;
-
-              if (lat === '' || lng === '') {
-                throw new Error('Location must have gps coordinates.');
-              }
-
-              this.position = {
-                lat: parseFloat(lat),
-                lng: parseFloat(lng)
-              };
-
-              this.infoWindow = new InfoWindow({
-                content: `
-            <div class="info-window">
-              <h3>${this.title}</h3>
-              <p>${this.address}</p>
-              <p><a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a></p>
-            </div>
-          `,
-              });
-
-              google.maps.event.addListener(
-                this.infoWindow,
-                'closeclick',
-                () => {
-                  this.closeAdditionalMetaDrawer();
-                }
-              );
-
-              this.infoWindowState = false;
+          
 
 
-              // if (!location_types[type.slug]) {
-              //   throw new Error('Location type is not valid.');
-              // }
 
-              const markerImageContainer = document.createElement('div');
-              markerImageContainer.setAttribute(
-                'style',
-                `
-            position: relative;
-            display: block;
-            width: 32px;
-            height: 32px;
-            --bottom-step: 4px;
-            --left-step: 8px;
-            `
-              );
+class Location {
+  /**
+   * @param {google.maps.Map} map
+   * @param {string} title
+   * @param {string} address
+   * @param {Array<object>} types
+   * @param {number|string} lat
+   * @param {number|string} lng
+   * @param {LocationsManager} locationsManager
+   * @param {string} [phone]
+   */
+  constructor(map, title, address, types, lat, lng, locationsManager, phone = '') {
+    this.map = map;
+    this.title = title;
+    this.address = address || '';
+    this.types = types || [];
+    this.locationsManager = locationsManager;
+    this.locationListElement = null;
+    this.marker = null;
 
-              for (const type of this.types) {
-                if (!type || !type.slug) {
-                  console.error({
-                    Message: 'Location type is not valid.',
-                    type: type,
-                    location: this
-                  });
-                  continue;
-                }
+    // Phone
+    this.phone = (phone || '').toString().trim();
+    this.getTelHref = () => {
+      if (!this.phone) return '';
+      const raw = this.phone.replace(/[^+\d]/g, ''); // digits and +
+      return raw ? `tel:${raw}` : '';
+    };
+    this.getDisplayPhone = () => this.phone;
 
-                const markerImg = document.createElement("img");
+    // Position
+    if (lat === '' || lng === '') {
+      throw new Error('Location must have gps coordinates.');
+    }
+    this.position = { lat: parseFloat(lat), lng: parseFloat(lng) };
 
-                const locationType = location_types[type.slug];
-                const iconUrl = locationType && locationType.icon && locationType.icon.url ? locationType.icon.url : '';
-                markerImg.src = iconUrl;
-                markerImg.alt = locationType && locationType.term ? locationType.term.name : type.slug;
-                markerImg.setAttribute(
-                  'style',
-                  `
-              position: absolute;
-              bottom: calc(var(--bottom-step) * ${this.types.indexOf(type)});
-              left: calc(var(--left-step) * ${this.types.indexOf(type)});
-              width: 24px;
-              z-index: ${this.types.length - this.types.indexOf(type)};
-              `
-                );
+    // InfoWindow
+    this.infoWindow = new InfoWindow({
+      content: `
+        <div class="info-window">
+          <h3>${this.title}</h3>
+          <p>${this.address}</p>
+          <p><a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a></p>
+          ${this.getTelHref() ? `<p><a href="${this.getTelHref()}">${this.getDisplayPhone()}</a></p>` : ``}
+        </div>
+      `,
+    });
 
-                markerImageContainer.appendChild(markerImg);
-              }
+    google.maps.event.addListener(this.infoWindow, 'closeclick', () => {
+      this.closeAdditionalMetaDrawer();
+    });
+    this.infoWindowState = false;
 
-              const marker = new AdvancedMarkerElement({
-                map: map,
-                position: this.position,
-                title: title,
-                content: markerImageContainer
-              });
+    // Marker (unchanged from your version) ...
+    const markerImageContainer = document.createElement('div');
+    markerImageContainer.setAttribute('style', `
+      position: relative; display: block; width: 32px; height: 32px;
+      --bottom-step: 4px; --left-step: 8px;
+    `);
 
-              marker.addListener('click', this.clickHandler.bind(this));
+    for (const type of this.types) {
+      if (!type || !type.slug) continue;
+      const markerImg = document.createElement("img");
+      const locationType = location_types[type.slug];
+      const iconUrl = locationType && locationType.icon && locationType.icon.url ? locationType.icon.url : '';
+      markerImg.src = iconUrl;
+      markerImg.alt = locationType && locationType.term ? locationType.term.name : type.slug;
+      markerImg.setAttribute('style', `
+        position: absolute;
+        bottom: calc(var(--bottom-step) * ${this.types.indexOf(type)});
+        left: calc(var(--left-step) * ${this.types.indexOf(type)});
+        width: 24px;
+        z-index: ${this.types.length - this.types.indexOf(type)};
+      `);
+      markerImageContainer.appendChild(markerImg);
+    }
 
-              this.marker = marker;
+    const marker = new AdvancedMarkerElement({
+      map: map,
+      position: this.position,
+      title: title,
+      content: markerImageContainer
+    });
+    marker.addListener('click', this.clickHandler.bind(this));
+    this.marker = marker;
 
-              this.locationsManager.addLocations([this]);
+    this.locationsManager.addLocations([this]);
 
-              this.openInfoWindow.bind(this);
-              this.closeInfoWindow.bind(this);
-              this.toggleInfoWindow.bind(this);
-              this.setInfoWindowContent.bind(this);
-              this.setInfoWindowPosition.bind(this);
-              this.setInfoWindowMap.bind(this);
-              this.setInfoWindowTitle.bind(this);
+    // binds
+    this.openInfoWindow = this.openInfoWindow.bind(this);
+    this.closeInfoWindow = this.closeInfoWindow.bind(this);
+    this.toggleInfoWindow = this.toggleInfoWindow.bind(this);
+    this.setInfoWindowContent = this.setInfoWindowContent.bind(this);
+    this.setInfoWindowPosition = this.setInfoWindowPosition.bind(this);
+    this.setInfoWindowMap = this.setInfoWindowMap.bind(this);
+    this.setInfoWindowTitle = this.setInfoWindowTitle.bind(this);
+  }
 
-            }
+
 
             /**
              * Handles the click event on the marker.
@@ -1031,70 +1044,80 @@ class MapComplex
              * 
              * @returns {HTMLElement}
              */
-            render() {
-              const template = `
-            <div class="icon">
-              ${this.types.map(type => {
-                const locationType = location_types[type.slug];
-                const iconUrl = locationType && locationType.icon && locationType.icon.url ? locationType.icon.url : '';
-                const termName = locationType && locationType.term ? locationType.term.name : type.slug;
-                return `<img src="${iconUrl}" alt="${termName}" width="30px" />`;
-              }).join('')}
-            </div>
-            <div class="content">
-              <h3>${this.title}</h3>
-              <p>${this.address ? this.address.split(',')[0] : ''}</p>
-            </div>
-            <div class="additional-meta-drawer">
-              <div class="meta-drawer-links">
-                <div class="directions-link"><a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a></div>
-                <div class="show-on-map-container"></div>
-              </div>
-            </div>
-          `;
+            
 
 
-              const element = document.createElement('li');
-              this.locationListElement = element;
-              element.innerHTML = template;
-              element.classList.add('location');
-              this.active = false;
-              element.setAttribute('data-location-id', this.ID);
+render() {
+  // Build the Call link only if a phone number exists and can become a tel: href
+  const callLink = this.getTelHref()
+    ? `<div class="call-link"><a href="${this.getTelHref()}">${this.getDisplayPhone()}</a></div>`
+    : ``;
 
-              const showOnMapContainer = element.querySelector('.show-on-map-container');
-              const showOnMapElement = document.createElement('a');
-              showOnMapElement.classList.add('show-on-map');
-              showOnMapElement.innerHTML = 'Show on map';
-              withIntentfulInteraction(
-                showOnMapElement,
-                () => {
-                  // Center the map in the viewport
-                  const mapElement = document.getElementById('map');
-                  const mapRect = mapElement.getBoundingClientRect();
-                  const windowHeight = window.innerHeight;
-                  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const template = `
+    <div class="icon">
+      ${this.types.map(type => {
+        const locationType = location_types[type.slug];
+        const iconUrl = locationType && locationType.icon && locationType.icon.url ? locationType.icon.url : '';
+        const termName = locationType && locationType.term ? locationType.term.name : type.slug;
+        return `<img src="${iconUrl}" alt="${termName}" width="30px" />`;
+      }).join('')}
+    </div>
+    <div class="content">
+      <h3>${this.title}</h3>
+      <p>${this.address ? this.address.split(',')[0] : ''}</p>
+    </div>
+    <div class="additional-meta-drawer">
+      <div class="meta-drawer-links">
+        <div class="directions-link">
+          <a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a>
+        </div>
+        <div class="show-on-map-container"></div>
+        ${callLink}
+      </div>
+    </div>
+  `;
 
-                  // Calculate the position to center the map vertically in the viewport
-                  const targetScrollTop = scrollTop + mapRect.top - (windowHeight / 2) + (mapRect.height / 2);
+  const element = document.createElement('li');
+  this.locationListElement = element;
+  element.innerHTML = template;
+  element.classList.add('location');
+  this.active = false;
+  element.setAttribute('data-location-id', this.ID);
 
-                  window.scrollTo({
-                    top: targetScrollTop,
-                    behavior: 'smooth'
-                  });
-                }
-              );
-              showOnMapContainer.appendChild(showOnMapElement);
+  // wire up "Show on map"
+  const showOnMapContainer = element.querySelector('.show-on-map-container');
+  const showOnMapElement = document.createElement('a');
+  showOnMapElement.classList.add('show-on-map');
+  showOnMapElement.innerHTML = 'Show on map';
 
-              withIntentfulInteraction(
-                element,
-                () => {
-                  this.openInfoWindow();
-                  this.toggleAdditionalMetaDrawer();
-                }
-              );
+  withIntentfulInteraction(
+    showOnMapElement,
+    () => {
+      // Center the map element in viewport
+      const mapElement = document.getElementById('map');
+      const mapRect = mapElement.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const targetScrollTop = scrollTop + mapRect.top - (windowHeight / 2) + (mapRect.height / 2);
+      window.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
+    }
+  );
+  showOnMapContainer.appendChild(showOnMapElement);
 
-              return element;
-            }
+  // clicking the list item opens the drawer and info window
+  withIntentfulInteraction(
+    element,
+    () => {
+      this.openInfoWindow();
+      this.toggleAdditionalMetaDrawer();
+    }
+  );
+
+  return element;
+}
+
+
+
 
           }
 
@@ -1333,17 +1356,20 @@ class MapComplex
 
           // Add the markers from the locations post types.
           const locations = <?= json_encode($locations) ?>;
-          // console.log(locations);
-          // Sort the locations by post_title alphabetically acending.
-          locations.sort((a, b) => {
-            if (a.post_title < b.post_title) {
-              return -1;
-            }
-            if (a.post_title > b.post_title) {
-              return 1;
-            }
-            return 0;
-          });
+        
+          // Sort locations by location type name (then by title as a secondary sort)
+locations.sort((a, b) => {
+  const aType = (a.location_type && a.location_type[0] && a.location_type[0].name) ? a.location_type[0].name.toLowerCase() : '';
+  const bType = (b.location_type && b.location_type[0] && b.location_type[0].name) ? b.location_type[0].name.toLowerCase() : '';
+
+  // Compare by type first
+  if (aType < bType) return -1;
+  if (aType > bType) return 1;
+
+  // Fallback to alphabetical by title if same type
+  return a.name.localeCompare(b.name);
+});
+
 
           const filterListElement = document.querySelector('.filter-list');
           const locationsListElement = document.querySelector('.locations-list');
@@ -1390,7 +1416,8 @@ class MapComplex
               location.location_type,
               location.lat,
               location.lng,
-              locationsManager
+              locationsManager,
+              location.phone || '' // <-- NEW
             ));
 
             return locations;
