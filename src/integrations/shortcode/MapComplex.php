@@ -98,8 +98,8 @@ class MapComplex
         .locations-list .location .icon img { position: absolute; --bottom-step: 6px; --left-step: 12px; }
         .locations-list .location .icon img:nth-child(1) { z-index: 10; }
         .locations-list .location .content { flex: 1; }
-        .locations-list .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0rem; }
-        .locations-list .location .content h3, .locations-list .location .content p { margin: 0; }
+        .locations-list .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0px; }
+        .locations-list .location .content h3, .locations-list .location .content p { margin: 0 0 -5px 0; }
 
         .locations-list .location .additional-meta-drawer { grid-column: span 2; max-height: 0; overflow: hidden; transition: all 0.3s ease-in-out; }
         .locations-list .location .additional-meta-drawer.open { max-height: 500px; }
