@@ -4,11 +4,11 @@ namespace MarketMentors\EasyLocations\src\integrations\shortcode;
 
 use MarketMentors\EasyLocations\src\models\Location;
 
-class MapComplex
+class MapMash
 {
   public function __construct()
   {
-    add_shortcode('easy-locations-map-complex', [$this, 'render']);
+    add_shortcode('easy-locations-map-mash', [$this, 'render']);
     add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
   }
 
@@ -123,7 +123,7 @@ class MapComplex
     $maps_api_key_dev = 'AIzaSyAvdJa5-XhoMP0ut39PMirYLBIuXKB_8aA';
 
     $atts = shortcode_atts([
-      'id' => 'easy_locations_map_complex',
+      'id' => 'easy_locations_map_mash',
     ], $atts);
 
     // Get locations & types
@@ -572,7 +572,7 @@ class MapComplex
             const map = await new Map(document.getElementById("map"), {
               zoom: isPhone ? 9 : 7,
               center: position_default,
-              mapId: "easy_locations_map_complex",
+              mapId: "easy_locations_map_mash",
               disableDefaultUI: true,
               zoomControl: true,
               scaleControl: true,
@@ -650,7 +650,7 @@ class MapComplex
 
     ob_start();
 ?>
-    <div class="easy-locations-map-complex">
+    <div class="easy-locations-map-mash">
       <section id="hero" class="page-section half-window-height no-padding flex justify-center align-center" style="margin-top:0px; padding-top:0px; padding-bottom:0px; margin-bottom:0px;">
         <div class="section-background-group">
           <div class="background-underlay "></div>

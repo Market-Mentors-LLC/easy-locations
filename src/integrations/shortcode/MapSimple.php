@@ -185,7 +185,7 @@ class MapSimple
         // Replace YOUR_API_KEY with your actual Google Maps JavaScript API key
         // The 'callback=initMap' tells the API to call the initMap function once it's loaded.
         // The '&libraries=marker' loads the necessary library for Advanced Markers and PinElement.
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDxrZvp13o4vfImn_Ci4ypFbekQVwXF25s&callback=initMap&libraries=marker`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAvdJa5-XhoMP0ut39PMirYLBIuXKB_8aA&callback=console.debug&libraries=maps,marker&v=beta`;
         script.async = true;
         document.head.appendChild(script);
       }
