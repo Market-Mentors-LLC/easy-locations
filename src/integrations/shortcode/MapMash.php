@@ -45,10 +45,9 @@ class MapMash
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  padding: .35rem .6rem;
-  font-size: 1rem;
+  padding: .35rem .35rem;
+  font-size: 1.2rem;
   line-height: 1.2;
-  border: 1px solid #e2e2e2;
   border-radius: 999px;
   background: #fff;
   color: #b5b5b5; /* default grey text */
@@ -56,16 +55,14 @@ class MapMash
   cursor: pointer;
   user-select: none;
   transition:
-    border-color .2s ease,
-    box-shadow .2s ease,
     color .2s ease,
     opacity .2s ease,
     filter .2s ease;
 }
 
 .filter-item .icon img {
-  width: 26px;
-  height: 26px;
+  width: 40px;
+  height: 40px;
   display: block;
   filter: grayscale(100%) brightness(0.6); /* greyscale inactive icons */
 }
@@ -78,8 +75,6 @@ class MapMash
 
 /* Active state */
 .filter-item.active {
-  border-color: #EF3E42;
-  box-shadow: 0 0 0 2px rgba(239, 62, 66, .25);
   color: #252525;
   opacity: 1;
 }
