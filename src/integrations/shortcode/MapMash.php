@@ -44,12 +44,8 @@ class MapMash
        .filter-item {
   display: inline-flex;
   align-items: center;
-  gap: .5rem;
-  padding: .35rem .35rem;
+  padding: .3rem .3rem;
   font-size: 1.2rem;
-  line-height: 1.2;
-  border-radius: 999px;
-  background: #fff;
   color: #b5b5b5; /* default grey text */
   opacity: 0.6; /* slightly dimmed inactive state */
   cursor: pointer;
@@ -61,8 +57,8 @@ class MapMash
 }
 
 .filter-item .icon img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   display: block;
   filter: grayscale(100%) brightness(0.6); /* greyscale inactive icons */
 }
@@ -255,7 +251,7 @@ class MapMash
                   const bottom = (filterSlug === null) ? `calc(var(--bottom-step) * ${i})` : '0';
                   const left   = (filterSlug === null) ? `calc(var(--left-step) * ${i})` : '0';
                   const z      = (filterSlug === null) ? (typesToRender.length - i) : 10;
-                  img.style.cssText = `position:absolute;bottom:${bottom};left:${left};width:24px;z-index:${z};`;
+                  img.style.cssText = `position:absolute;bottom:${bottom};left:${left};width:65px;z-index:${z};`;
                   container.appendChild(img);
                 });
                 return container;
@@ -319,7 +315,7 @@ class MapMash
               // Reset
               const reset = document.createElement('li');
               reset.className = 'filter-item reset';
-              reset.textContent = 'Reset';
+              reset.textContent = 'Select any of our materials by clicking the icons below. Click here to reset the map.';
               withIntentfulInteraction(reset, () => {
                 this.filtersList.forEach(f => f.activate());
                 this.updateMarkers(null);
