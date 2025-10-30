@@ -28,13 +28,39 @@ class MapMash
         .map-controls {
           display: block;
           width: 100%;
+          border-bottom: #252525;
           margin: 0 0 12px 0;
         }
+
+        /* CHANGED: Added styles for the new sentence container */
+        .map-reset-text {
+          text-align: center;
+          margin-top: 1rem;
+          margin-bottom: -10px;
+          font-family: 'Oswald', sans-serif;
+          font-weight: bold;
+        }
+        .map-reset-text a {
+            cursor: pointer;
+            color: #1e73be; /* Feel free to change this link color */
+        }
+
+
+
+
+        .reset-map-link {
+            cursor: pointer;
+            color: #1e73be; /* Feel free to change this link color */
+        }
+
+
+
 
         .filter-list {
           display: flex;
           flex-wrap: wrap;
           align-items: center;
+          justify-content: center; /* CHANGED: This centers the icons */
           gap: var(--filter-gap);
           list-style: none;
           padding: 0;
@@ -42,53 +68,52 @@ class MapMash
         }
 
        .filter-item {
-  display: inline-flex;
-  align-items: center;
-  padding: .3rem .3rem;
-  font-size: 1.2rem;
-  color: #b5b5b5; /* default grey text */
-  opacity: 0.6; /* slightly dimmed inactive state */
-  cursor: pointer;
-  user-select: none;
-  transition:
-    color .2s ease,
-    opacity .2s ease,
-    filter .2s ease;
-}
+         display: inline-flex;
+         align-items: center;
+         padding: .3rem .3rem;
+         font-size: 1.2rem;
+         color: #b5b5b5; /* default grey text */
+         opacity: 0.6; /* slightly dimmed inactive state */
+         cursor: pointer;
+         user-select: none;
+         font-family: 'Oswald', sans-serif;
+         font-weight: bold;
+         transition:
+           color .2s ease,
+           opacity .2s ease,
+           filter .2s ease;
+       }
 
-.filter-item .icon img {
-  width: 50px;
-  height: 50px;
-  display: block;
-  filter: grayscale(100%) brightness(0.6); /* greyscale inactive icons */
-}
+       .filter-item .icon img {
+         width: 60px;
+         display: block;
+         filter: opacity(50%); 
+       }
 
-/* Hover (not active) */
-.filter-item:hover {
-  border-color: #cfcfcf;
-  opacity: 0.8;
-}
+       /* Hover (not active) */
+       .filter-item:hover {
+         opacity: 0.8;
+       }
 
-/* Active state */
-.filter-item.active {
-  color: #252525;
-  opacity: 1;
-}
+       /* Active state */
+       .filter-item.active {
+         color: #252525;
+         opacity: 1;
+       }
 
-.filter-item.active .icon img {
-  filter: none; /* restores full color */
-}
+       .filter-item.active .icon img {
+         filter: none; /* restores full color */
+       }
 
-/* Optional: Reset button styling */
-.filter-item.reset {
-  border-color: transparent;
-  background: transparent;
-  color: #252525;
-  opacity: 1;
-  padding-left: 0;
-  box-shadow: none;
-}
-
+       /* Optional: Reset button styling */
+       .filter-item.reset {
+         border-color: transparent;
+         background: transparent;
+         color: #252525;
+         opacity: 1;
+         padding-left: 0;
+         box-shadow: none;
+       }
 
         /* Map section */
         #hero.page-section { margin:0; padding:0; }
@@ -251,7 +276,7 @@ class MapMash
                   const bottom = (filterSlug === null) ? `calc(var(--bottom-step) * ${i})` : '0';
                   const left   = (filterSlug === null) ? `calc(var(--left-step) * ${i})` : '0';
                   const z      = (filterSlug === null) ? (typesToRender.length - i) : 10;
-                  img.style.cssText = `position:absolute;bottom:${bottom};left:${left};width:65px;z-index:${z};`;
+                  img.style.cssText = `position:absolute;bottom:${bottom};left:${left};width:80px;z-index:${z};`;
                   container.appendChild(img);
                 });
                 return container;
@@ -309,19 +334,24 @@ class MapMash
                 }
               });
             }
+            // CHANGED: Entire function updated to handle reset text separately
             renderFilters(containerEl) {
               containerEl.innerHTML = '';
               this.filtersList.forEach(f => containerEl.appendChild(f.render()));
-              // Reset
-              const reset = document.createElement('li');
-              reset.className = 'filter-item reset';
-              reset.textContent = 'Select any of our materials by clicking the icons below. Click here to reset the map.';
-              withIntentfulInteraction(reset, () => {
-                this.filtersList.forEach(f => f.activate());
-                this.updateMarkers(null);
-                this.fit();
-              });
-              containerEl.appendChild(reset);
+
+              // Handle the reset text in its own container
+              const resetContainer = document.querySelector('.map-reset-text');
+              if (resetContainer) {
+                  resetContainer.innerHTML = 'Select any of our materials by clicking the icons below. <a class="reset-map-link">Click here</a> to reset the map.';
+                  const resetLink = resetContainer.querySelector('.reset-map-link');
+                  if (resetLink) {
+                      withIntentfulInteraction(resetLink, () => {
+                          this.filtersList.forEach(f => f.activate()); // Keeps original logic of making all icons active on reset
+                          this.updateMarkers(null);
+                          this.fit();
+                      });
+                  }
+              }
             }
             closeAllInfoWindows() {
               this.locations.forEach(l => l.infoWindow.close());
@@ -378,20 +408,12 @@ class MapMash
       echo ob_get_clean();
     });
 
-    // Markup: FILTERS ABOVE MAP, no locations list
+    // CHANGED: Markup updated to have a separate container for the reset text
     ob_start(); ?>
     <div class="easy-locations-map-mash">
       <div class="map-controls">
-        <ul class="filter-list">
-          <?php foreach ($location_types as $key => $type) { ?>
-            <li class="filter-item active" data-filter="<?= esc_attr($key) ?>" data-active="true">
-              <span class="icon">
-                <img src="<?= $type['icon']['url'] ?? '' ?>" alt="<?= esc_attr($type['term']->name) ?>" />
-              </span><?= esc_html($type['term']->name) ?>
-            </li>
-          <?php } ?>
-          <li class="filter-item reset">Reset</li>
-        </ul>
+        <p class="map-reset-text"></p>
+        <ul class="filter-list"></ul>
       </div>
 
       <section id="hero" class="page-section no-padding">
