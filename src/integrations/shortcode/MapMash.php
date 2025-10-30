@@ -14,119 +14,36 @@ class MapMash
 
   public function enqueue_scripts()
   {
-    // Inline styles (kept lean)
+    // Inline styles (unchanged except for what you already had)
     add_action('wp_head', function () {
       ob_start(); ?>
       <style type="text/css">
-        :root {
-          --filter-gap: .75rem;
-        }
-
+        :root { --filter-gap: .75rem; }
         .easy-locations-map-mash { position: relative; }
 
-        /* Controls live ABOVE the map now */
-        .map-controls {
-          display: block;
-          width: 100%;
-          border-bottom: #252525;
-          margin: 0 0 12px 0;
-        }
+        .map-controls { display:block; width:100%; border-bottom:#252525; margin:0 0 12px 0; }
 
-        /* CHANGED: Added styles for the new sentence container */
-        .map-reset-text {
-          text-align: center;
-          margin-top: 1rem;
-          margin-bottom: -10px;
-          font-family: 'Oswald', sans-serif;
-          font-weight: bold;
-        }
-        .map-reset-text a {
-            cursor: pointer;
-            color: #1e73be; /* Feel free to change this link color */
-        }
+        .map-reset-text { text-align:center; margin-top:1rem; margin-bottom:-10px; font-family:'Oswald',sans-serif; font-weight:bold; }
+        .map-reset-text a { cursor:pointer; color:#1e73be; }
 
+        .reset-map-link { cursor:pointer; color:#1e73be; }
 
+        .filter-list { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:var(--filter-gap); list-style:none; padding:0; margin:0; }
 
+        .filter-item { display:inline-flex; align-items:center; padding:.3rem .3rem; font-size:1.2rem; color:#b5b5b5; opacity:.6; cursor:pointer; user-select:none; font-family:'Oswald',sans-serif; font-weight:bold; transition: color .2s, opacity .2s, filter .2s; }
+        .filter-item .icon img { width:60px; display:block; filter:opacity(50%); }
+        .filter-item:hover { opacity:.8; }
+        .filter-item.active { color:#252525; opacity:1; }
+        .filter-item.active .icon img { filter:none; }
+        .filter-item.reset { border-color:transparent; background:transparent; color:#252525; opacity:1; padding-left:0; box-shadow:none; }
 
-        .reset-map-link {
-            cursor: pointer;
-            color: #1e73be; /* Feel free to change this link color */
-        }
-
-
-
-
-        .filter-list {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          justify-content: center; /* CHANGED: This centers the icons */
-          gap: var(--filter-gap);
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-
-       .filter-item {
-         display: inline-flex;
-         align-items: center;
-         padding: .3rem .3rem;
-         font-size: 1.2rem;
-         color: #b5b5b5; /* default grey text */
-         opacity: 0.6; /* slightly dimmed inactive state */
-         cursor: pointer;
-         user-select: none;
-         font-family: 'Oswald', sans-serif;
-         font-weight: bold;
-         transition:
-           color .2s ease,
-           opacity .2s ease,
-           filter .2s ease;
-       }
-
-       .filter-item .icon img {
-         width: 60px;
-         display: block;
-         filter: opacity(50%); 
-       }
-
-       /* Hover (not active) */
-       .filter-item:hover {
-         opacity: 0.8;
-       }
-
-       /* Active state */
-       .filter-item.active {
-         color: #252525;
-         opacity: 1;
-       }
-
-       .filter-item.active .icon img {
-         filter: none; /* restores full color */
-       }
-
-       /* Optional: Reset button styling */
-       .filter-item.reset {
-         border-color: transparent;
-         background: transparent;
-         color: #252525;
-         opacity: 1;
-         padding-left: 0;
-         box-shadow: none;
-       }
-
-        /* Map section */
         #hero.page-section { margin:0; padding:0; }
-        .section-background-group { height: 540px; }
-        .section-background-group .map { height: 100%; width: 100%; }
+        .section-background-group { height:540px; }
+        .section-background-group .map { height:100%; width:100%; }
 
-        /* Optional: reduce map height on small screens */
-        @media (max-width: 640px) {
-          .section-background-group { height: 420px; }
-        }
+        @media (max-width: 640px) { .section-background-group { height:420px; } }
       </style>
-      <?php
-      echo ob_get_clean();
+      <?php echo ob_get_clean();
     });
   }
 
@@ -136,9 +53,7 @@ class MapMash
     $maps_api_key = 'AIzaSyAvdJa5-XhoMP0ut39PMirYLBIuXKB_8aA';
     $maps_api_key_dev = 'AIzaSyAvdJa5-XhoMP0ut39PMirYLBIuXKB_8aA';
 
-    $atts = shortcode_atts([
-      'id' => 'easy_locations_map_mash',
-    ], $atts);
+    $atts = shortcode_atts(['id' => 'easy_locations_map_mash'], $atts);
 
     // Fetch data
     $locations = Location::get_all_locations();
@@ -159,7 +74,7 @@ class MapMash
     add_action('wp_footer', function () use ($maps_api_key, $maps_api_key_dev, $locations, $location_types, $default_filter) {
       ob_start(); ?>
       <script>
-        // Google Maps JS API loader (unchanged)
+        // Google Maps JS API loader
         (g => {
           var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window;
           b = b[c] || (b[c] = {});
@@ -189,174 +104,145 @@ class MapMash
           const location_types = <?= json_encode($location_types) ?>;
           const position_default = { lat: 42.8432136, lng: -72.3555698 };
 
-          // Simple click helper (keeps your "intentful" feel)
+          // Small helper for click/tap feel
           function withIntentfulInteraction(el, cb) {
             let down;
             el.addEventListener('mousedown', e => { if (e.button!==0) return; e.preventDefault(); down = Date.now(); });
-            el.addEventListener('mouseup', e => { if (e.button!==0) return; e.preventDefault(); if (Date.now() - down < 333) cb(); });
+            el.addEventListener('mouseup',   e => { if (e.button!==0) return; e.preventDefault(); if (Date.now() - down < 333) cb(); });
             el.addEventListener('mouseleave', () => down = null);
           }
 
-          class Filter {
-            constructor(type) {
-              this.type = type;
-              this.active = true;
-              this.element = null;
-              this.locationsManager = null;
-              this.handleToggle = null;
-              this.visible = true;
-            }
-            hide() { this.visible = false; }
-            show() { this.visible = true; }
-            activate() { this.active = true; this.element?.classList.add('active'); }
-            deactivate() { this.active = false; this.element?.classList.remove('active'); }
-            toggle() {
-              // Single-select behavior like your example
-              this.locationsManager.filtersList.forEach(f => f.deactivate());
-              this.activate();
-              this.handleToggle(this.type.term.slug);
-            }
-            render() {
-              const lt = location_types[this.type.term.slug] || {};
-              const iconUrl = lt.icon?.url || '';
-              const termName = lt.term?.name || this.type.term.slug;
-              const el = document.createElement('li');
-              el.className = 'filter-item' + (this.active ? ' active' : '');
-              el.setAttribute('data-type', this.type.term.slug);
-              el.innerHTML = `<span class="icon"><img src="${iconUrl}" alt="${termName}"/></span>${termName}`;
-              withIntentfulInteraction(el, () => this.toggle());
-              el.style.display = this.visible ? 'inline-flex' : 'none';
-              this.element = el;
-              return el;
-            }
-          }
 
-          class SimpleLocation {
-            /**
-             * @param {google.maps.Map} map
-             * @param {object} loc
-             * @param {LocationsManager} locationsManager
-             */
-            constructor(map, loc, locationsManager) {
-              this.map = map;
-              this.locationsManager = locationsManager;
 
-              this.title   = loc.name || '';
-              this.address = loc.address || '';
-              this.types   = Array.isArray(loc.location_type) ? loc.location_type : [];
-              this.phone   = (loc.phone || '').toString().trim();
+          /** -------- FILTER (delegate clicks to manager) -------- */
+class Filter {
+  constructor(type) {
+    this.type = type;
+    this.active = true;            // start active (show all)
+    this.element = null;
+    this.locationsManager = null;
+    this.onClick = null;           // manager will attach
+    this.visible = true;
+  }
+  setActive(isActive) {
+    this.active = isActive;
+    if (this.element) this.element.classList.toggle('active', this.active);
+  }
+  render() {
+    const lt = location_types[this.type.term.slug] || {};
+    const iconUrl = lt.icon?.url || '';
+    const termName = lt.term?.name || this.type.term.slug;
+    const el = document.createElement('li');
+    el.className = 'filter-item' + (this.active ? ' active' : '');
+    el.setAttribute('data-type', this.type.term.slug);
+    el.innerHTML = `<span class="icon"><img src="${iconUrl}" alt="${termName}"/></span>${termName}`;
+    withIntentfulInteraction(el, () => this.onClick?.(this)); // <— delegate
+    el.style.display = this.visible ? 'inline-flex' : 'none';
+    this.element = el;
+    return el;
+  }
+}
 
-              if (!loc.lat || !loc.lng) throw new Error('Location must have coordinates.');
-              this.position = { lat: parseFloat(loc.lat), lng: parseFloat(loc.lng) };
+/** -------- LOCATIONS MANAGER (first-click-isolate) -------- */
+class LocationsManager {
+  constructor(mapInstance, filtersList) {
+    this.mapInstance = mapInstance;
+    this.filtersList = filtersList.map(f => {
+      f.locationsManager = this;
+      f.onClick = this.handleFilterClick.bind(this);
+      return f;
+    });
+    this.locations = [];
+    this.bounds = new google.maps.LatLngBounds();
 
-              // info window
-              const telHref = this.phone ? `tel:${this.phone.replace(/[^+\d]/g, '')}` : '';
-              const phoneHTML = telHref ? `<p><a href="${telHref}">${this.phone}</a></p>` : '';
-              this.infoWindow = new InfoWindow({
-                content: `
-                  <div class="info-window">
-                    <h3>${this.title}</h3>
-                    <p>${this.address}</p>
-                    <p><a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank" rel="noopener">Directions</a></p>
-                    ${phoneHTML}
-                  </div>
-                `,
-              });
+    this.allSlugs = new Set(Object.keys(location_types));
+    this.activeSlugs = new Set(this.allSlugs); // start with “all on”
+    this.pristine = true; // <— first click should isolate
+  }
 
-              // build stacked/single icons
-              this.buildMarkerContent = (filterSlug = null) => {
-                const container = document.createElement('div');
-                container.style.cssText = 'position:relative;display:block;width:45px;height:45px;--bottom-step:4px;--left-step:8px;';
-                const typesToRender = (filterSlug === null) ? this.types : this.types.filter(t => t?.slug === filterSlug);
-                typesToRender.forEach((t, i) => {
-                  const lt = location_types[t.slug] || {};
-                  const img = document.createElement('img');
-                  img.src = lt.icon?.url || '';
-                  img.alt = lt.term?.name || t.slug;
-                  const bottom = (filterSlug === null) ? `calc(var(--bottom-step) * ${i})` : '0';
-                  const left   = (filterSlug === null) ? `calc(var(--left-step) * ${i})` : '0';
-                  const z      = (filterSlug === null) ? (typesToRender.length - i) : 10;
-                  img.style.cssText = `position:absolute;bottom:${bottom};left:${left};width:80px;z-index:${z};`;
-                  container.appendChild(img);
-                });
-                return container;
-              };
+  add(loc) {
+    this.locations.push(loc);
+    this.bounds.extend(loc.position);
+  }
+  fit() { if (!this.bounds.isEmpty()) this.mapInstance.fitBounds(this.bounds); }
 
-              this.marker = new AdvancedMarkerElement({
-                map: this.map,
-                position: this.position,
-                title: this.title,
-                content: this.buildMarkerContent(null)
-              });
+  isAllActive() { return this.activeSlugs.size === this.allSlugs.size; }
 
-              this.marker.addListener('click', () => {
-                this.locationsManager.closeAllInfoWindows();
-                this.infoWindow.open(this.map, this.marker);
-              });
+  handleFilterClick(filterObj) {
+    const slug = filterObj.type.term.slug;
 
-              // API for filter updates
-              this.updateMarkerIcons = (filterSlug) => {
-                this.marker.content = this.buildMarkerContent(filterSlug);
-              };
-            }
-          }
+    if (this.pristine && this.isAllActive()) {
+      // FIRST CLICK: isolate
+      this.activateOnly(slug);
+      this.pristine = false;
+      return;
+    }
 
-          class LocationsManager {
-            constructor(mapInstance, filtersList) {
-              this.mapInstance = mapInstance;
-              this.filtersList = filtersList.map(f => {
-                f.locationsManager = this;
-                f.handleToggle = this.updateMarkers.bind(this);
-                return f;
-              });
-              this.locations = [];
-              this.bounds = new google.maps.LatLngBounds();
-              this.activeFilterSlug = null; // null = show all
-            }
-            add(loc) {
-              this.locations.push(loc);
-              this.bounds.extend(loc.position);
-            }
-            fit() {
-              if (!this.bounds.isEmpty()) this.mapInstance.fitBounds(this.bounds);
-            }
-            updateMarkers(slug) {
-              this.activeFilterSlug = slug;
-              this.locations.forEach(loc => {
-                // swap icons
-                loc.updateMarkerIcons(slug);
-                // show/hide markers
-                const hasSlug = loc.types.some(t => t.slug === slug);
-                if (slug === null || hasSlug) {
-                  loc.marker.map = this.mapInstance;
-                } else {
-                  loc.marker.map = null;
-                }
-              });
-            }
-            // CHANGED: Entire function updated to handle reset text separately
-            renderFilters(containerEl) {
-              containerEl.innerHTML = '';
-              this.filtersList.forEach(f => containerEl.appendChild(f.render()));
+    // Afterwards: normal toggle
+    const willBeActive = !filterObj.active;
+    this.setActive(slug, willBeActive);
+  }
 
-              // Handle the reset text in its own container
-              const resetContainer = document.querySelector('.map-reset-text');
-              if (resetContainer) {
-                  resetContainer.innerHTML = 'Select any of our materials by clicking the icons below. <a class="reset-map-link">Click here</a> to reset the map.';
-                  const resetLink = resetContainer.querySelector('.reset-map-link');
-                  if (resetLink) {
-                      withIntentfulInteraction(resetLink, () => {
-                          this.filtersList.forEach(f => f.activate()); // Keeps original logic of making all icons active on reset
-                          this.updateMarkers(null);
-                          this.fit();
-                      });
-                  }
-              }
-            }
-            closeAllInfoWindows() {
-              this.locations.forEach(l => l.infoWindow.close());
-            }
-          }
+  setActive(slug, isActive) {
+    if (isActive) this.activeSlugs.add(slug);
+    else this.activeSlugs.delete(slug);
+    // reflect state on the chip
+    const f = this.filtersList.find(x => x.type.term.slug === slug);
+    f?.setActive(isActive);
+    this.updateAllMarkers();
+  }
+
+  activateAll() {
+    this.activeSlugs = new Set(this.allSlugs);
+    this.filtersList.forEach(f => f.setActive(true));
+    this.updateAllMarkers();
+    this.pristine = true; // reset re-arms first-click-isolate
+  }
+
+  activateOnly(slug) {
+    this.activeSlugs = new Set([slug]);
+    this.filtersList.forEach(f => f.setActive(f.type.term.slug === slug));
+    this.updateAllMarkers();
+    this.pristine = false;
+  }
+
+  updateAllMarkers() {
+    const active = this.activeSlugs;
+    const showNothing = active.size === 0;
+
+    this.locations.forEach(loc => {
+      // update icon stack to only active types
+      loc.updateMarkerIcons(active);
+      const hasAnyActive = loc.types.some(t => active.has(t.slug));
+      const shouldShow = !showNothing && hasAnyActive;
+      loc.marker.map = shouldShow ? this.mapInstance : null;
+    });
+  }
+
+  renderFilters(containerEl) {
+    containerEl.innerHTML = '';
+    this.filtersList.forEach(f => containerEl.appendChild(f.render()));
+
+    // Reset link
+    const resetContainer = document.querySelector('.map-reset-text');
+    if (resetContainer) {
+      resetContainer.innerHTML = 'Select any of our materials by clicking the icons below. <a class="reset-map-link">Click here</a> to reset the map.';
+      const resetLink = resetContainer.querySelector('.reset-map-link');
+      if (resetLink) {
+        withIntentfulInteraction(resetLink, () => {
+          this.activateAll();
+          this.fit();
+        });
+      }
+    }
+  }
+
+  closeAllInfoWindows() { this.locations.forEach(l => l.infoWindow.close()); }
+}
+
+
+
+
 
           // Init map
           const isPhone = window.innerWidth < 640;
@@ -395,20 +281,22 @@ class MapMash
             locationsManager.add(l);
           });
           locationsManager.fit();
+          locationsManager.updateAllMarkers(); // initial render
 
-          // Default filter via querystring
-          const default_filter = '<?= $default_filter ?: '' ?>';
-          if (default_filter) {
-            const df = locationsManager.filtersList.find(f => f.type.term.slug === default_filter);
-            if (df) df.toggle();
-          }
+          // Default filter via querystring: start isolated and mark as not pristine
+const default_filter = '<?= $default_filter ?: '' ?>';
+if (default_filter) {
+  locationsManager.activateOnly(default_filter);
+  locationsManager.pristine = false;
+}
+
         })();
+
       </script>
-      <?php
-      echo ob_get_clean();
+      <?php echo ob_get_clean();
     });
 
-    // CHANGED: Markup updated to have a separate container for the reset text
+    // Markup (unchanged except for your reset text container)
     ob_start(); ?>
     <div class="easy-locations-map-mash">
       <div class="map-controls">
