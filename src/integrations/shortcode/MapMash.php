@@ -41,25 +41,63 @@ class MapMash
           margin: 0;
         }
 
-        .filter-item {
-          display: inline-flex;
-          align-items: center;
-          gap: .5rem;
-          padding: .35rem .6rem;
-          font-size: 1rem;
-          line-height: 1.2;
-          border: 1px solid #e2e2e2;
-          border-radius: 999px;
-          background: #fff;
-          cursor: pointer;
-          user-select: none;
-          transition: border-color .2s ease, box-shadow .2s ease, opacity .2s ease;
-        }
-        .filter-item .icon img { width: 26px; height: 26px; display: block; }
+       .filter-item {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .35rem .6rem;
+  font-size: 1rem;
+  line-height: 1.2;
+  border: 1px solid #e2e2e2;
+  border-radius: 999px;
+  background: #fff;
+  color: #b5b5b5; /* default grey text */
+  opacity: 0.6; /* slightly dimmed inactive state */
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    color .2s ease,
+    opacity .2s ease,
+    filter .2s ease;
+}
 
-        .filter-item:hover { border-color: #cfcfcf; }
-        .filter-item.active { box-shadow: 0 0 0 2px rgba(239,62,66,.25); border-color: #EF3E42; }
-        .filter-item.reset { border-color: transparent; background: transparent; padding-left: 0; }
+.filter-item .icon img {
+  width: 26px;
+  height: 26px;
+  display: block;
+  filter: grayscale(100%) brightness(0.6); /* greyscale inactive icons */
+}
+
+/* Hover (not active) */
+.filter-item:hover {
+  border-color: #cfcfcf;
+  opacity: 0.8;
+}
+
+/* Active state */
+.filter-item.active {
+  border-color: #EF3E42;
+  box-shadow: 0 0 0 2px rgba(239, 62, 66, .25);
+  color: #252525;
+  opacity: 1;
+}
+
+.filter-item.active .icon img {
+  filter: none; /* restores full color */
+}
+
+/* Optional: Reset button styling */
+.filter-item.reset {
+  border-color: transparent;
+  background: transparent;
+  color: #252525;
+  opacity: 1;
+  padding-left: 0;
+  box-shadow: none;
+}
+
 
         /* Map section */
         #hero.page-section { margin:0; padding:0; }
