@@ -266,7 +266,7 @@ class MapMash
               // build stacked/single icons
               this.buildMarkerContent = (filterSlug = null) => {
                 const container = document.createElement('div');
-                container.style.cssText = 'position:relative;display:block;width:32px;height:32px;--bottom-step:4px;--left-step:8px;';
+                container.style.cssText = 'position:relative;display:block;width:45px;height:45px;--bottom-step:4px;--left-step:8px;';
                 const typesToRender = (filterSlug === null) ? this.types : this.types.filter(t => t?.slug === filterSlug);
                 typesToRender.forEach((t, i) => {
                   const lt = location_types[t.slug] || {};
