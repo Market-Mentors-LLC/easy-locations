@@ -61,6 +61,10 @@ class MapMash
   color: #3a3a3a;
 }
 
+.mm-actions a:hover {
+  color: #3a3a3a;
+}
+
       </style>
       <?php echo ob_get_clean();
     });
