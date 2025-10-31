@@ -112,98 +112,167 @@ class MapMash
             el.addEventListener('mouseleave', () => down = null);
           }
 
+          /** -------- FILTER (now multi-select) -------- */
+          class Filter {
+            constructor(type) {
+              this.type = type;
+              this.active = true;    // start active
+              this.element = null;
+              this.locationsManager = null;
+              this.onToggle = null;
+              this.visible = true;
+            }
+            setActive(isActive) {
+              this.active = isActive;
+              if (this.element) this.element.classList.toggle('active', this.active);
+            }
+            toggle() {
+              this.setActive(!this.active);
+              this.onToggle?.(this.type.term.slug, this.active);
+            }
+            render() {
+              const lt = location_types[this.type.term.slug] || {};
+              const iconUrl = lt.icon?.url || '';
+              const termName = lt.term?.name || this.type.term.slug;
+              const el = document.createElement('li');
+              el.className = 'filter-item' + (this.active ? ' active' : '');
+              el.setAttribute('data-type', this.type.term.slug);
+              el.innerHTML = `<span class="icon"><img src="${iconUrl}" alt="${termName}"/></span>${termName}`;
+              withIntentfulInteraction(el, () => this.toggle());
+              el.style.display = this.visible ? 'inline-flex' : 'none';
+              this.element = el;
+              return el;
+            }
+          }
 
+          /** -------- LOCATION / MARKER -------- */
+          class SimpleLocation {
+            constructor(map, loc, locationsManager) {
+              this.map = map;
+              this.locationsManager = locationsManager;
 
-          /** -------- FILTER (delegate clicks to manager) -------- */
-class Filter {
-  constructor(type) {
-    this.type = type;
-    this.active = true;            // start active (show all)
-    this.element = null;
-    this.locationsManager = null;
-    this.onClick = null;           // manager will attach
-    this.visible = true;
-  }
-  setActive(isActive) {
-    this.active = isActive;
-    if (this.element) this.element.classList.toggle('active', this.active);
-  }
-  render() {
-    const lt = location_types[this.type.term.slug] || {};
-    const iconUrl = lt.icon?.url || '';
-    const termName = lt.term?.name || this.type.term.slug;
-    const el = document.createElement('li');
-    el.className = 'filter-item' + (this.active ? ' active' : '');
-    el.setAttribute('data-type', this.type.term.slug);
-    el.innerHTML = `<span class="icon"><img src="${iconUrl}" alt="${termName}"/></span>${termName}`;
-    withIntentfulInteraction(el, () => this.onClick?.(this)); // <— delegate
-    el.style.display = this.visible ? 'inline-flex' : 'none';
-    this.element = el;
-    return el;
-  }
-}
+              this.title   = loc.name || '';
+              this.address = loc.address || '';
+              this.types   = Array.isArray(loc.location_type) ? loc.location_type : [];
+              this.phone   = (loc.phone || '').toString().trim();
+              if (!loc.lat || !loc.lng) throw new Error('Location must have coordinates.');
+              this.position = { lat: parseFloat(loc.lat), lng: parseFloat(loc.lng) };
 
-/** -------- LOCATIONS MANAGER (first-click-isolate) -------- */
-class LocationsManager {
+              const telHref = this.phone ? `tel:${this.phone.replace(/[^+\d]/g, '')}` : '';
+              const phoneHTML = telHref ? `<p><a href="${telHref}">${this.phone}</a></p>` : '';
+              this.infoWindow = new InfoWindow({
+                content: `
+                  <div class="info-window">
+                    <h3>${this.title}</h3>
+                    <p>${this.address}</p>
+                    <p><a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank" rel="noopener">Directions</a></p>
+                    ${phoneHTML}
+                  </div>
+                `,
+              });
+
+              // Build stacked/single icons, filtered by active set if provided
+              this.buildMarkerContent = (activeSet = null) => {
+                const container = document.createElement('div');
+                container.style.cssText = 'position:relative;display:block;width:45px;height:45px;--bottom-step:4px;--left-step:8px;';
+                const typesToRender = (activeSet === null)
+                  ? this.types
+                  : this.types.filter(t => activeSet.has(t.slug));
+                typesToRender.forEach((t, i) => {
+                  const lt = location_types[t.slug] || {};
+                  const img = document.createElement('img');
+                  img.src = lt.icon?.url || '';
+                  img.alt = lt.term?.name || t.slug;
+                  const bottom = `calc(var(--bottom-step) * ${i})`;
+                  const left   = `calc(var(--left-step) * ${i})`;
+                  const z      = (typesToRender.length - i);
+                  img.style.cssText = `position:absolute;bottom:${bottom};left:${left};width:80px;z-index:${z};`;
+                  container.appendChild(img);
+                });
+                return container;
+              };
+
+              this.marker = new AdvancedMarkerElement({
+                map: this.map,
+                position: this.position,
+                title: this.title,
+                content: this.buildMarkerContent(null)
+              });
+
+              this.marker.addListener('click', () => {
+                this.locationsManager.closeAllInfoWindows();
+                this.infoWindow.open(this.map, this.marker);
+              });
+
+              this.updateMarkerIcons = (activeSet) => {
+                this.marker.content = this.buildMarkerContent(activeSet);
+              };
+            }
+          }
+
+          /** -------- LOCATIONS MANAGER (maintains active Set) -------- */
+         class LocationsManager {
   constructor(mapInstance, filtersList) {
     this.mapInstance = mapInstance;
+
+    // Tracks whether we've already performed the special “first click collapses to one” behavior.
+    this.firstInteractionDone = false;
+
     this.filtersList = filtersList.map(f => {
       f.locationsManager = this;
-      f.onClick = this.handleFilterClick.bind(this);
+      // Intercept filter toggles to apply first-click logic
+      f.onToggle = (slug, requestedActiveState) => {
+        if (!this.firstInteractionDone && this.isAllActive()) {
+          this.firstInteractionDone = true;
+          this.activateOnly(slug);
+        } else {
+          this.setActive(slug, requestedActiveState);
+        }
+      };
       return f;
     });
+
     this.locations = [];
     this.bounds = new google.maps.LatLngBounds();
 
-    this.allSlugs = new Set(Object.keys(location_types));
-    this.activeSlugs = new Set(this.allSlugs); // start with “all on”
-    this.pristine = true; // <— first click should isolate
+    // Start with everything active
+    this.activeSlugs = new Set(Object.keys(location_types));
+  }
+
+  isAllActive() {
+    return this.activeSlugs.size === Object.keys(location_types).length;
   }
 
   add(loc) {
     this.locations.push(loc);
     this.bounds.extend(loc.position);
   }
-  fit() { if (!this.bounds.isEmpty()) this.mapInstance.fitBounds(this.bounds); }
 
-  isAllActive() { return this.activeSlugs.size === this.allSlugs.size; }
-
-  handleFilterClick(filterObj) {
-    const slug = filterObj.type.term.slug;
-
-    if (this.pristine && this.isAllActive()) {
-      // FIRST CLICK: isolate
-      this.activateOnly(slug);
-      this.pristine = false;
-      return;
-    }
-
-    // Afterwards: normal toggle
-    const willBeActive = !filterObj.active;
-    this.setActive(slug, willBeActive);
+  fit() {
+    if (!this.bounds.isEmpty()) this.mapInstance.fitBounds(this.bounds);
   }
 
   setActive(slug, isActive) {
     if (isActive) this.activeSlugs.add(slug);
     else this.activeSlugs.delete(slug);
-    // reflect state on the chip
-    const f = this.filtersList.find(x => x.type.term.slug === slug);
-    f?.setActive(isActive);
     this.updateAllMarkers();
+    // Keep filter pill visuals in sync
+    this.filtersList.forEach(f => {
+      if (f.type.term.slug === slug) f.setActive(isActive);
+    });
   }
 
   activateAll() {
-    this.activeSlugs = new Set(this.allSlugs);
+    this.activeSlugs = new Set(Object.keys(location_types));
     this.filtersList.forEach(f => f.setActive(true));
+    this.firstInteractionDone = false; // enable the special behavior again after reset
     this.updateAllMarkers();
-    this.pristine = true; // reset re-arms first-click-isolate
   }
 
   activateOnly(slug) {
     this.activeSlugs = new Set([slug]);
     this.filtersList.forEach(f => f.setActive(f.type.term.slug === slug));
     this.updateAllMarkers();
-    this.pristine = false;
   }
 
   updateAllMarkers() {
@@ -211,8 +280,10 @@ class LocationsManager {
     const showNothing = active.size === 0;
 
     this.locations.forEach(loc => {
-      // update icon stack to only active types
+      // Update stacked icons to show only active types
       loc.updateMarkerIcons(active);
+
+      // Show marker if ANY of its types are active (AND not showing none)
       const hasAnyActive = loc.types.some(t => active.has(t.slug));
       const shouldShow = !showNothing && hasAnyActive;
       loc.marker.map = shouldShow ? this.mapInstance : null;
@@ -239,9 +310,6 @@ class LocationsManager {
 
   closeAllInfoWindows() { this.locations.forEach(l => l.infoWindow.close()); }
 }
-
-
-
 
 
           // Init map
@@ -283,15 +351,13 @@ class LocationsManager {
           locationsManager.fit();
           locationsManager.updateAllMarkers(); // initial render
 
-          // Default filter via querystring: start isolated and mark as not pristine
-const default_filter = '<?= $default_filter ?: '' ?>';
+          // Default filter via querystring: if present, start with ONLY that type active
+          const default_filter = '<?= $default_filter ?: '' ?>';
 if (default_filter) {
   locationsManager.activateOnly(default_filter);
-  locationsManager.pristine = false;
+  locationsManager.firstInteractionDone = true; // subsequent clicks toggle normally
 }
-
         })();
-
       </script>
       <?php echo ob_get_clean();
     });
