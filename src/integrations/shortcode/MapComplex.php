@@ -87,28 +87,67 @@ class MapComplex
         .filter-item:not(.active):hover { color: #777; }
         .filter-item .icon img { position: relative; display: block; width: 30px; z-index: 10; }
 
-        /* Locations list (grid) */
-        .locations-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1rem; padding: 0; }
-        @media (max-width: 959px) { .locations-list { grid-template-columns: 1fr; } }
-        @media (min-width: 960px) and (max-width: 1365px) { .locations-list { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1366px) { .locations-list { grid-template-columns: repeat(3, 1fr); } }
+        /* --- NEW LAYOUT STYLES --- */
+        
+        /* The main list wrapper is now a block, not a grid, so sections stack vertically */
+        .locations-list { display: block; padding: 0; }
+        
+        /* New Headers and dividers */
+        .locations-list h2.section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+            text-transform: capitalize;
+        }
+        
+        .locations-list hr.section-divider {
+            border: 0;
+            border-top: 1px solid #ccc; /* Thin divider */
+            margin-bottom: 1.5rem;
+        }
 
-        .locations-list .location { display: inline-grid; grid-template-columns: 57px auto; width: 100%; margin: .33rem; cursor: pointer; user-select: none; }
-        .locations-list .location .icon { position: relative; display: block; width: 64px; height: 64px; margin-right: 1rem; }
-        .locations-list .location .icon img { position: absolute; --bottom-step: 6px; --left-step: 12px; }
-        .locations-list .location .icon img:nth-child(1) { z-index: 10; }
-        .locations-list .location .content { flex: 1; }
-        .locations-list .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0px; }
-        .locations-list .location .content h3, .locations-list .location .content p { margin: 0 0 -5px 0; }
+        /* The Grid is now applied to the UL inside every section */
+        .locations-section-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
+            gap: .5rem; 
+            padding: 0;
+            margin-bottom: 2rem;
+            list-style: none;
+        }
 
-        .locations-list .location .additional-meta-drawer { grid-column: span 2; max-height: 0; overflow: hidden; transition: all 0.3s ease-in-out; }
-        .locations-list .location .additional-meta-drawer.open { max-height: 500px; }
-        .locations-list .location .additional-meta-drawer .meta-drawer-links { display: flex; justify-content: flex-start; align-items: center; gap: .75rem; flex-wrap: wrap; width: auto; }
+        @media (max-width: 959px) { .locations-section-grid { grid-template-columns: 1fr; } }
+        @media (min-width: 960px) and (max-width: 1365px) { .locations-section-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1366px) { .locations-section-grid { grid-template-columns: repeat(3, 1fr); } }
 
-        /* keep link color stable */
-        .locations-list .location .meta-drawer-links a:hover,
-        .locations-list .location .meta-drawer-links a:focus,
-        .locations-list .location .meta-drawer-links a:active { color: #000 !important; opacity: 1 !important; text-decoration: none; transform: none !important; }
+        /* Individual Location Card */
+        .locations-section-grid .location { display: inline-grid; grid-template-columns: 57px auto; width: 100%; margin: .33rem; cursor: pointer; user-select: none; }
+        .locations-section-grid .location .icon { position: relative; display: block; width: 64px; height: 64px; margin-right: 1rem; }
+        
+        /* Simplified Content Styles */
+        .locations-section-grid .location .content { flex: 1; display: flex; flex-direction: column; justify-content: center;}
+        .locations-section-grid .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 2px; margin-top:0; line-height: 1.2; }
+        .locations-section-grid .location .content p.address { margin: 0 0 5px 0; font-size: 0.95rem; color: #555; }
+        
+        /* New Link Styling (Directions / Phone) */
+        .locations-section-grid .location .content .location-links {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .locations-section-grid .location .content .location-links a {
+            color: #EF3E42; 
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .locations-section-grid .location .content .location-links a:hover {
+            text-decoration: underline;
+        }
+
       </style>
 <?php
       $styles = ob_get_clean();
@@ -285,10 +324,9 @@ class MapComplex
                   </div>
                 `,
               });
-              google.maps.event.addListener(this.infoWindow, 'closeclick', () => { this.closeAdditionalMetaDrawer(); });
               this.infoWindowState = false;
 
-              // ----- NEW: build marker content (stacked or single) -----
+              // ----- build marker content (stacked or single) -----
               this.buildMarkerContent = (filterSlug = null) => {
                 const container = document.createElement('div');
                 container.setAttribute('style', 'position:relative; display:block; width:32px; height:32px; --bottom-step:4px; --left-step:8px;');
@@ -337,22 +375,16 @@ class MapComplex
               this.openInfoWindow = this.openInfoWindow.bind(this);
               this.closeInfoWindow = this.closeInfoWindow.bind(this);
               this.toggleInfoWindow = this.toggleInfoWindow.bind(this);
-              this.setInfoWindowContent = this.setInfoWindowContent.bind(this);
-              this.setInfoWindowPosition = this.setInfoWindowPosition.bind(this);
-              this.setInfoWindowMap = this.setInfoWindowMap.bind(this);
-              this.setInfoWindowTitle = this.setInfoWindowTitle.bind(this);
             }
 
             clickHandler() {
               if (this.infoWindowState) {
                 this.infoWindow.close();
-                this.closeAdditionalMetaDrawer();
                 this.infoWindowState = false;
               } else {
                 this.locationsManager.closeAllInfoWindows();
                 this.infoWindowState = true;
                 this.infoWindow.open(this.map, this.marker);
-                this.openAdditionalMetaDrawer();
               }
             }
 
@@ -363,93 +395,55 @@ class MapComplex
             }
             closeInfoWindow() { this.infoWindow.close(); this.infoWindowState = false; }
             toggleInfoWindow() { this.infoWindowState ? this.closeInfoWindow() : this.openInfoWindow(); }
-            setInfoWindowContent(c) { this.infoWindow.setContent(c); }
-            setInfoWindowPosition(p) { this.infoWindow.setPosition(p); }
-            setInfoWindowMap(m) { this.infoWindow.setMap(m); }
-            setInfoWindowTitle(t) { this.infoWindow.setTitle(t); }
-            setMarkerMap(m) { this.marker.setMap(m); }
-            setMarkerPosition(p) { this.marker.setPosition(p); }
-            setMarkerTitle(t) { this.marker.setTitle(t); }
 
-            openAdditionalMetaDrawer() {
-              this.locationsManager.closeAllLocationsDrawers();
-              if (!this.locationListElement) return;
-              const drawer = this.locationListElement.querySelector('.additional-meta-drawer');
-              if (drawer && !drawer.classList.contains('open')) {
-                drawer.classList.add('open');
-                this.active = true;
-              }
-            }
-            closeAdditionalMetaDrawer() {
-              if (!this.locationListElement) return;
-              const drawer = this.locationListElement.querySelector('.additional-meta-drawer');
-              if (drawer && drawer.classList.contains('open')) {
-                drawer.classList.remove('open');
-                this.active = false;
-                this.closeInfoWindow();
-              }
-            }
-            toggleAdditionalMetaDrawer() { this.active ? this.closeAdditionalMetaDrawer() : this.openAdditionalMetaDrawer(); }
-
-            render() {
-              const callLink = this.getTelHref() ? `<div class="call-link"><a href="${this.getTelHref()}">${this.getDisplayPhone()}</a></div>` : ``;
-
-              // NEW: mirror stacked/single behavior in the list
-              const activeSlug = (this.locationsManager && this.locationsManager.activeFilterSlug) ? this.locationsManager.activeFilterSlug : null;
-              const listTypes = (activeSlug === null) ? this.types : this.types.filter(t => t.slug === activeSlug);
+            // UPDATED: render accepts a specificSlug to only show that icon
+            render(specificSlug = null) {
+              const callLink = this.getTelHref() ? `<a href="${this.getTelHref()}">${this.getDisplayPhone()}</a>` : ``;
+              
+              // Only render specific icon if slug is provided, otherwise render all (though new logic usually provides slug)
+              const listTypes = (specificSlug === null) ? this.types : this.types.filter(t => t.slug === specificSlug);
 
               const iconsHtml = listTypes.map((type, i) => {
                 const lt = location_types[type.slug];
                 const iconUrl = lt?.icon?.url || '';
                 const termName = lt?.term ? lt.term.name : type.slug;
-                const style = (activeSlug === null)
-                  ? `position:absolute; bottom:calc(var(--bottom-step) * ${i}); left:calc(var(--left-step) * ${i});`
-                  : `position:absolute; bottom:0; left:0;`;
+                // Since we are separating sections, we usually only have 1 icon here, so we remove the calc positioning
+                const style = `position:absolute; bottom:0; left:0;`;
                 return `<img src="${iconUrl}" alt="${termName}" width="30px" style="${style}" />`;
               }).join('');
 
+              // SIMPLIFIED TEMPLATE: No drawers, just direct links
               const template = `
                 <div class="icon">${iconsHtml}</div>
                 <div class="content">
                   <h3>${this.title}</h3>
-                  <p>${this.address ? this.address.split(',')[0] : ''}</p>
-                </div>
-                <div class="additional-meta-drawer">
-                  <div class="meta-drawer-links">
-                    <div class="directions-link">
-                      <a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a>
-                    </div>
-                    <div class="show-on-map-container"></div>
-                    ${callLink}
+                  <p class="address">${this.address ? this.address.split(',')[0] : ''}</p>
+                  <div class="location-links">
+                     <a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a>
+                     ${callLink}
                   </div>
                 </div>
               `;
 
               const element = document.createElement('li');
-              this.locationListElement = element;
+              // No longer setting this.locationListElement globally because this location might exist in multiple sections now
               element.innerHTML = template;
               element.classList.add('location');
-              this.active = false;
               element.setAttribute('data-location-id', this.ID);
 
-              const showOnMapContainer = element.querySelector('.show-on-map-container');
-              const showOnMapElement = document.createElement('a');
-              showOnMapElement.classList.add('show-on-map');
-              showOnMapElement.innerHTML = 'Show on map';
-              withIntentfulInteraction(showOnMapElement, () => {
+              // click interaction now just opens map info window
+              withIntentfulInteraction(element, () => {
+                // scroll to map
                 const mapElement = document.getElementById('map');
                 const mapRect = mapElement.getBoundingClientRect();
                 const windowHeight = window.innerHeight;
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 const targetScrollTop = scrollTop + mapRect.top - (windowHeight / 2) + (mapRect.height / 2);
                 window.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
-              });
-              showOnMapContainer.appendChild(showOnMapElement);
-
-              withIntentfulInteraction(element, () => {
+                
                 this.openInfoWindow();
-                this.toggleAdditionalMetaDrawer();
               });
+              
               return element;
             }
           }
@@ -467,7 +461,6 @@ class MapComplex
               this.mapInstance = mapInstance;
               this.bounds = new google.maps.LatLngBounds();
 
-              // NEW: track the currently-applied filter (null = show all)
               this.activeFilterSlug = null;
             }
 
@@ -482,14 +475,10 @@ class MapComplex
             }
 
             updateMapLocations(slug) {
-              // NEW: remember state for both markers & list rendering
               this.activeFilterSlug = slug;
 
               for (const location of this.locations) {
                 location.closeInfoWindow();
-                location.closeAdditionalMetaDrawer();
-
-                // NEW: swap marker icons (stacked vs single)
                 location.updateMarkerIcons(slug);
 
                 if (slug === null) {
@@ -516,9 +505,9 @@ class MapComplex
                 location.infoWindowState = false;
               });
             }
-
+            
             closeAllLocationsDrawers() {
-              this.locations.forEach(location => location.closeAdditionalMetaDrawer());
+               // Deprecated function, keeping to prevent errors if called externally, but drawers are removed.
             }
 
             renderFiltersList() {
@@ -553,16 +542,48 @@ class MapComplex
               this.filterListElement.appendChild(resetElement);
             }
 
+            // UPDATED: Renders sections with Headers, Dividers, and Grids
             renderLocationsList() {
               this.locationsListElement.innerHTML = '';
               const activeFilters = this.filtersList.filter(f => f.active);
-              this.locations.forEach(location => {
-                const hasActiveFilter = location.types.some(type => {
-                  return activeFilters.some(filter => filter.type.term.slug === type.slug);
-                });
-                if (hasActiveFilter) {
-                  this.locationsListElement.appendChild(location.render());
-                }
+              
+              // If no filters are "active" (which shouldn't happen with current logic, but safety check)
+              // Or if we want to show all categories when activeFilterSlug is null:
+              // The logic here: Iterate active filters. For each filter, create a section.
+              
+              activeFilters.forEach(filter => {
+                  const filterSlug = filter.type.term.slug;
+                  const filterName = filter.type.term.name;
+                  
+                  // Find locations that belong to this specific category
+                  const sectionLocations = this.locations.filter(loc => {
+                      return loc.types.some(t => t.slug === filterSlug);
+                  });
+                  
+                  if(sectionLocations.length === 0) return; // Skip empty sections
+                  
+                  // 1. Create Title
+                  const title = document.createElement('h2');
+                  title.innerText = filterName;
+                  title.className = 'section-title';
+                  this.locationsListElement.appendChild(title);
+                  
+                  // 2. Create Divider
+                  const hr = document.createElement('hr');
+                  hr.className = 'section-divider';
+                  this.locationsListElement.appendChild(hr);
+                  
+                  // 3. Create Grid Container
+                  const grid = document.createElement('ul');
+                  grid.className = 'locations-section-grid';
+                  
+                  // 4. Populate Grid
+                  sectionLocations.forEach(loc => {
+                      // Pass the filterSlug so the location renders only THAT icon
+                      grid.appendChild(loc.render(filterSlug));
+                  });
+                  
+                  this.locationsListElement.appendChild(grid);
               });
             }
           }
@@ -673,7 +694,7 @@ class MapComplex
         </figure>
 
         <hr />
-        <ul class="locations-list"><!-- dynamically rendered --></ul>
+        <div class="locations-list"></div>
       </div>
     </div>
 <?php
