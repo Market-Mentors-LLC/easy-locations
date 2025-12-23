@@ -87,7 +87,7 @@ class MapComplex
         .filter-item:not(.active):hover { color: #777; }
         .filter-item .icon img { position: relative; display: block; width: 30px; z-index: 10; }
 
-        /* --- NEW LAYOUT STYLES --- */
+        /* --- LAYOUT STYLES --- */
         
         /* The main list wrapper is now a block, not a grid, so sections stack vertically */
         .locations-list { display: block; padding: 0; }
@@ -112,7 +112,7 @@ class MapComplex
         .locations-section-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
-            gap: .5rem; 
+            gap: 1.5rem; /* Increased gap slightly for breathing room */
             padding: 0;
             margin-bottom: 2rem;
             list-style: none;
@@ -123,28 +123,38 @@ class MapComplex
         @media (min-width: 1366px) { .locations-section-grid { grid-template-columns: repeat(3, 1fr); } }
 
         /* Individual Location Card */
-        .locations-section-grid .location { display: inline-grid; grid-template-columns: 57px auto; width: 100%; margin: .33rem; cursor: pointer; user-select: none; }
+        .locations-section-grid .location { display: inline-grid; grid-template-columns: 57px auto; width: 100%; margin: 0; cursor: pointer; user-select: none; align-items: start; }
         .locations-section-grid .location .icon { position: relative; display: block; width: 64px; height: 64px; margin-right: 1rem; }
         
-        /* Simplified Content Styles */
-        .locations-section-grid .location .content { flex: 1; display: flex; flex-direction: column; justify-content: center;}
-        .locations-section-grid .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 2px; margin-top:0; line-height: 1.2; }
-        .locations-section-grid .location .content p.address { margin: 0 0 5px 0; font-size: 0.95rem; color: #555; }
+        /* Content Styling */
+        .locations-section-grid .location .content { flex: 1; display: flex; flex-direction: column; justify-content: flex-start;}
+        .locations-section-grid .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 5px; margin-top:0; line-height: 1.2; }
         
-        /* New Link Styling (Directions / Phone) */
-        .locations-section-grid .location .content .location-links {
+        /* UPDATED: Vertical Meta Block (Address, Directions, Phone) */
+        .locations-section-grid .location .content .meta-block {
             display: flex;
-            gap: 15px;
-            font-size: 0.9rem;
+            flex-direction: column;
+            gap: 3px; /* Tight vertical spacing */
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* Address lines are plain text */
+        .locations-section-grid .location .content .meta-block div.address-line {
+            color: #000;
+            font-weight: 400;
         }
         
-        .locations-section-grid .location .content .location-links a {
+        /* Links (Directions & Phone) are Red */
+        .locations-section-grid .location .content .meta-block a {
             color: #EF3E42; 
             text-decoration: none;
             font-weight: 500;
+            display: inline-block; /* Ensures they respect the vertical stack */
         }
         
-        .locations-section-grid .location .content .location-links a:hover {
+        .locations-section-grid .location .content .meta-block a:hover {
             text-decoration: underline;
         }
 
@@ -283,16 +293,6 @@ class MapComplex
           }
 
           class Location {
-            /**
-             * @param {google.maps.Map} map
-             * @param {string} title
-             * @param {string} address
-             * @param {Array<object>} types
-             * @param {number|string} lat
-             * @param {number|string} lng
-             * @param {LocationsManager} locationsManager
-             * @param {string} [phone]
-             */
             constructor(map, title, address, types, lat, lng, locationsManager, phone = '') {
               this.map = map;
               this.title = title;
@@ -398,40 +398,47 @@ class MapComplex
 
             // UPDATED: render accepts a specificSlug to only show that icon
             render(specificSlug = null) {
-              const callLink = this.getTelHref() ? `<a href="${this.getTelHref()}">${this.getDisplayPhone()}</a>` : ``;
-              
-              // Only render specific icon if slug is provided, otherwise render all (though new logic usually provides slug)
               const listTypes = (specificSlug === null) ? this.types : this.types.filter(t => t.slug === specificSlug);
 
               const iconsHtml = listTypes.map((type, i) => {
                 const lt = location_types[type.slug];
                 const iconUrl = lt?.icon?.url || '';
                 const termName = lt?.term ? lt.term.name : type.slug;
-                // Since we are separating sections, we usually only have 1 icon here, so we remove the calc positioning
                 const style = `position:absolute; bottom:0; left:0;`;
                 return `<img src="${iconUrl}" alt="${termName}" width="30px" style="${style}" />`;
               }).join('');
 
-              // SIMPLIFIED TEMPLATE: No drawers, just direct links
+              // FORMAT ADDRESS: Split by comma to try and get (Street) and (City, State) on new lines
+              let addressHtml = '';
+              if (this.address) {
+                  const parts = this.address.split(',');
+                  if (parts.length > 1) {
+                      const street = parts.shift().trim();
+                      const rest = parts.join(',').trim();
+                      addressHtml = `<div class="address-line">${street}</div><div class="address-line">${rest}</div>`;
+                  } else {
+                      addressHtml = `<div class="address-line">${this.address}</div>`;
+                  }
+              }
+
+              // TEMPLATE: Vertical Stack
               const template = `
                 <div class="icon">${iconsHtml}</div>
                 <div class="content">
                   <h3>${this.title}</h3>
-                  <p class="address">${this.address ? this.address.split(',')[0] : ''}</p>
-                  <div class="location-links">
+                  <div class="meta-block">
+                     ${addressHtml}
                      <a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a>
-                     ${callLink}
+                     ${this.phone ? `<a href="${this.getTelHref()}">${this.getDisplayPhone()}</a>` : ''}
                   </div>
                 </div>
               `;
 
               const element = document.createElement('li');
-              // No longer setting this.locationListElement globally because this location might exist in multiple sections now
               element.innerHTML = template;
               element.classList.add('location');
               element.setAttribute('data-location-id', this.ID);
 
-              // click interaction now just opens map info window
               withIntentfulInteraction(element, () => {
                 // scroll to map
                 const mapElement = document.getElementById('map');
@@ -507,7 +514,7 @@ class MapComplex
             }
             
             closeAllLocationsDrawers() {
-               // Deprecated function, keeping to prevent errors if called externally, but drawers are removed.
+               // Deprecated
             }
 
             renderFiltersList() {
@@ -542,14 +549,10 @@ class MapComplex
               this.filterListElement.appendChild(resetElement);
             }
 
-            // UPDATED: Renders sections with Headers, Dividers, and Grids
+            // Renders sections with Headers, Dividers, and Grids
             renderLocationsList() {
               this.locationsListElement.innerHTML = '';
               const activeFilters = this.filtersList.filter(f => f.active);
-              
-              // If no filters are "active" (which shouldn't happen with current logic, but safety check)
-              // Or if we want to show all categories when activeFilterSlug is null:
-              // The logic here: Iterate active filters. For each filter, create a section.
               
               activeFilters.forEach(filter => {
                   const filterSlug = filter.type.term.slug;
