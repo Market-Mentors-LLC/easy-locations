@@ -104,8 +104,9 @@ class MapComplex
         
         .locations-list hr.section-divider {
             border: 0;
-            border-top: 1px solid #ccc; /* Thin divider */
-            margin-bottom: 1.5rem;
+    border-top: 1px solid #333; /* Updated color to #333 */
+    width: 100%;                /* Forces the line to take full width */
+    margin-bottom: 1.5rem;
         }
 
         /* The Grid is now applied to the UL inside every section */
@@ -128,7 +129,7 @@ class MapComplex
         
         /* Content Styling */
         .locations-section-grid .location .content { flex: 1; display: flex; flex-direction: column; justify-content: flex-start;}
-        .locations-section-grid .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 5px; margin-top:0; line-height: 1.2; }
+        .locations-section-grid .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0px; margin-top:0; line-height: 1.2; }
         
         /* UPDATED: Vertical Meta Block (Address, Directions, Phone) */
         .locations-section-grid .location .content .meta-block {
@@ -348,7 +349,7 @@ class MapComplex
                   const left = (filterSlug === null) ? `calc(var(--left-step) * ${i})` : '0';
                   const z = (filterSlug === null) ? (typesToRender.length - i) : 10;
 
-                  img.setAttribute('style', `position:absolute; bottom:${bottom}; left:${left}; width:24px; z-index:${z};`);
+                  img.setAttribute('style', `position:absolute; top: 2px; left: 8px; width:24px; z-index:${z};`);
                   container.appendChild(img);
                 });
 
