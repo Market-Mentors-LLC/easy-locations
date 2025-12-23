@@ -400,7 +400,7 @@ class MapComplex
                 const lt = location_types[type.slug];
                 const iconUrl = lt?.icon?.url || '';
                 const termName = lt?.term ? lt.term.name : type.slug;
-                const style = `position:absolute; bottom:0; left:0;`;
+                const style = `position:absolute; top:2px; left:8px;`;
                 return `<img src="${iconUrl}" alt="${termName}" width="30px" style="${style}" />`;
               }).join('');
 
