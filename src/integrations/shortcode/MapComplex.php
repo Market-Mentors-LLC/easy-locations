@@ -102,12 +102,7 @@ class MapComplex
             text-transform: capitalize;
         }
         
-        .locations-list hr.section-divider {
-            border: 0;
-    border-top: 1px solid #333; /* Updated color to #333 */
-    width: 100%;                /* Forces the line to take full width */
-    margin-bottom: 1.5rem;
-        }
+
 
         /* The Grid is now applied to the UL inside every section */
         .locations-section-grid { 
@@ -572,10 +567,7 @@ class MapComplex
                   title.className = 'section-title';
                   this.locationsListElement.appendChild(title);
                   
-                  // 2. Create Divider
-                  const hr = document.createElement('hr');
-                  hr.className = 'section-divider';
-                  this.locationsListElement.appendChild(hr);
+               
                   
                   // 3. Create Grid Container
                   const grid = document.createElement('ul');
