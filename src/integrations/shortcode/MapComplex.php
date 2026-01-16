@@ -131,12 +131,13 @@ class MapComplex
             text-decoration: underline;
         }
 
-        /* Styling for the new description area */
-        .locations-section-grid .location .content .location-description {
-            margin-top: 10px;
+        /* UPDATED: Description Area Styling */
+        .locations-section-grid .location .content .description {
+            padding-top: 10px;
+            margin: 0;
             font-size: 0.9rem;
-            line-height: 1.5;
             color: #555;
+            line-height: 1.4;
         }
 
       </style>
@@ -275,7 +276,7 @@ class MapComplex
               this.types = types || [];
               this.locationsManager = locationsManager;
               this.marker = null;
-              this.description = description || '';
+              this.description = (description || '').trim(); // Store description
 
               this.phone = (phone || '').toString().trim();
               this.getTelHref = () => {
@@ -380,9 +381,11 @@ class MapComplex
                 const lt = location_types[type.slug];
                 const iconUrl = lt?.icon?.url || '';
                 const termName = lt?.term ? lt.term.name : type.slug;
+                
                 const xOffset = (specificSlug === null) ? (i * 6) : 0;
                 const yOffset = (specificSlug === null) ? (i * 6) : 0;
                 const z = 10 - i;
+                
                 const style = `position:absolute; left:${xOffset}px; top:${yOffset}px; z-index:${z}; width:30px;`;
                 return `<img src="${iconUrl}" alt="${termName}" style="${style}" />`;
               }).join('');
@@ -399,9 +402,6 @@ class MapComplex
                   }
               }
 
-              // Only generate the description block if there is actual text
-              const descHtml = this.description.trim() !== '' ? `<div class="location-description">${this.description}</div>` : '';
-
               const template = `
                 <div class="icon" style="position:relative; width:45px; height:45px;">${iconsHtml}</div>
                 <div class="content">
@@ -411,7 +411,7 @@ class MapComplex
                      <a href="https://www.google.com/maps/dir/?api=1&destination=${this.position.lat},${this.position.lng}" target="_blank">Directions</a>
                      ${this.phone ? `<a href="${this.getTelHref()}">${this.getDisplayPhone()}</a>` : ''}
                   </div>
-                  ${descHtml}
+                  ${this.description ? `<div class="description">${this.description}</div>` : ''}
                 </div>
               `;
 
@@ -569,7 +569,7 @@ class MapComplex
           locations_data.forEach(loc => {
             const hasTypes = Array.isArray(loc.location_type) && loc.location_type.length;
             if (!hasTypes) return;
-            // Passed loc.description as the last parameter
+            // Passed description explicitly here
             new Location(map, loc.name, loc.address, loc.location_type, loc.lat, loc.lng, locationsManager, loc.phone || '', loc.description || '');
           });
 
