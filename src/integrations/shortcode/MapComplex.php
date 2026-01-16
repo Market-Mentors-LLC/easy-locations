@@ -62,7 +62,6 @@ class MapComplex
 
         #map { height: 100%; width: 100%; }
 
-        /* Important: Keeps markers from being cut off when they overlap */
         .gm-style-aware-marker {
             overflow: visible !important;
         }
@@ -102,7 +101,6 @@ class MapComplex
 
         .locations-section-grid .location { display: inline-grid; grid-template-columns: 57px auto; width: 100%; margin: 0; cursor: pointer; user-select: none; align-items: start; }
         
-        /* Set icon container to be relative for the stack */
         .locations-section-grid .location .icon { position: relative; display: block; width: 64px; height: 64px; margin-right: 1rem; }
         
         .locations-section-grid .location .content { flex: 1; display: flex; flex-direction: column; justify-content: flex-start;}
@@ -131,6 +129,14 @@ class MapComplex
         
         .locations-section-grid .location .content .meta-block a:hover {
             text-decoration: underline;
+        }
+
+        /* Styling for the new description area */
+        .locations-section-grid .location .content .location-description {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #555;
         }
 
       </style>
@@ -262,13 +268,14 @@ class MapComplex
           }
 
           class Location {
-            constructor(map, title, address, types, lat, lng, locationsManager, phone = '') {
+            constructor(map, title, address, types, lat, lng, locationsManager, phone = '', description = '') {
               this.map = map;
               this.title = title;
               this.address = address || '';
               this.types = types || [];
               this.locationsManager = locationsManager;
               this.marker = null;
+              this.description = description || '';
 
               this.phone = (phone || '').toString().trim();
               this.getTelHref = () => {
@@ -293,7 +300,6 @@ class MapComplex
               });
               this.infoWindowState = false;
 
-              // --- MAP MARKER STACKED LOGIC ---
               this.buildMarkerContent = (filterSlug = null) => {
                 const container = document.createElement('div');
                 container.style.position = 'relative';
@@ -311,11 +317,8 @@ class MapComplex
                   const img = document.createElement('img');
                   img.src = iconUrl;
                   
-                  // DROPPED LOGIC: 
-                  // Background icons (higher 'i') shift to the right and down.
-                  // We reverse the z-index so the first icon (i=0) stays on top.
                   const xOffset = (filterSlug === null) ? (i * 6) : 0;
-                  const yOffset = (filterSlug === null) ? (i * -6) : 0;
+                  const yOffset = (filterSlug === null) ? (i * -10) : 0;
                   const z = 10 - i;
 
                   img.setAttribute('style', `
@@ -370,7 +373,6 @@ class MapComplex
             closeInfoWindow() { this.infoWindow.close(); this.infoWindowState = false; }
             toggleInfoWindow() { this.infoWindowState ? this.closeInfoWindow() : this.openInfoWindow(); }
 
-            // --- SIDEBAR LIST STACKED LOGIC ---
             render(specificSlug = null) {
               const listTypes = (specificSlug === null) ? this.types : this.types.filter(t => t.slug === specificSlug);
 
@@ -378,13 +380,9 @@ class MapComplex
                 const lt = location_types[type.slug];
                 const iconUrl = lt?.icon?.url || '';
                 const termName = lt?.term ? lt.term.name : type.slug;
-                
-                // DROPPED LOGIC:
-                // Shifts right (left offset) and down (top offset).
                 const xOffset = (specificSlug === null) ? (i * 6) : 0;
                 const yOffset = (specificSlug === null) ? (i * 6) : 0;
                 const z = 10 - i;
-                
                 const style = `position:absolute; left:${xOffset}px; top:${yOffset}px; z-index:${z}; width:30px;`;
                 return `<img src="${iconUrl}" alt="${termName}" style="${style}" />`;
               }).join('');
@@ -401,6 +399,9 @@ class MapComplex
                   }
               }
 
+              // Only generate the description block if there is actual text
+              const descHtml = this.description.trim() !== '' ? `<div class="location-description">${this.description}</div>` : '';
+
               const template = `
                 <div class="icon" style="position:relative; width:45px; height:45px;">${iconsHtml}</div>
                 <div class="content">
@@ -410,6 +411,7 @@ class MapComplex
                      <a href="https://www.google.com/maps/dir/?api=1&destination=${this.position.lat},${this.position.lng}" target="_blank">Directions</a>
                      ${this.phone ? `<a href="${this.getTelHref()}">${this.getDisplayPhone()}</a>` : ''}
                   </div>
+                  ${descHtml}
                 </div>
               `;
 
@@ -525,7 +527,6 @@ class MapComplex
                   grid.className = 'locations-section-grid';
                   
                   sectionLocations.forEach(loc => {
-                      // Only pass null if we want the stacked look
                       grid.appendChild(loc.render(this.activeFilterSlug ? filterSlug : null));
                   });
                   this.locationsListElement.appendChild(grid);
@@ -568,7 +569,8 @@ class MapComplex
           locations_data.forEach(loc => {
             const hasTypes = Array.isArray(loc.location_type) && loc.location_type.length;
             if (!hasTypes) return;
-            new Location(map, loc.name, loc.address, loc.location_type, loc.lat, loc.lng, locationsManager, loc.phone || '');
+            // Passed loc.description as the last parameter
+            new Location(map, loc.name, loc.address, loc.location_type, loc.lat, loc.lng, locationsManager, loc.phone || '', loc.description || '');
           });
 
           locationsManager.filtersList.forEach(f => f.checkIfShouldShow());
