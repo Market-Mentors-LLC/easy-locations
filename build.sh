@@ -2,7 +2,7 @@
 
 # Define the plugin name and version
 PLUGIN_NAME="easy-locations"
-VERSION="0.3.06"
+VERSION="0.4.00"
 
 # Define the build directory
 BUILD_DIR="build"

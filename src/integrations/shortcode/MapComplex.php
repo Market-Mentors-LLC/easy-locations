@@ -14,7 +14,6 @@ class MapComplex
 
   public function enqueue_scripts()
   {
-    // Add styles to head.
     add_action('wp_head', function () {
       ob_start();
 ?>
@@ -37,7 +36,6 @@ class MapComplex
           #hero .background-overlay.hasAngels .transform-wrapper {
             opacity: 0;
           }
-
           #hero .section-content-group {
             opacity: 0;
           }
@@ -54,20 +52,6 @@ class MapComplex
           }
         }
 
-        @media (min-width: 1366px) {
-          #hero .background-overlay.hasAngels .transform-wrapper {
-            opacity: 1;
-            transform: translate3D(-25%, var(--translate-y), 0) rotateZ(0) !important;
-          }
-        }
-
-        @media (min-width: 1600px) {
-          #hero .background-overlay.hasAngels .transform-wrapper {
-            opacity: 1;
-            transform: translate3D(-20%, var(--translate-y), 0) rotateZ(0) !important;
-          }
-        }
-
         :root {
           --marker-yellow: #c47c29;
           --marker-red: #52121b;
@@ -78,6 +62,11 @@ class MapComplex
 
         #map { height: 100%; width: 100%; }
 
+        /* Important: Keeps markers from being cut off when they overlap */
+        .gm-style-aware-marker {
+            overflow: visible !important;
+        }
+
         .filter-list { display: flex; flex-wrap: wrap; padding: 0; }
         .filter-item { position: relative; display: inline-flex; align-items: center; margin: 1rem; background-color: transparent; cursor: pointer; overflow: hidden; font-size: 1.125rem; user-select: none; }
         .filter-item.reset { padding: 0 1rem; }
@@ -87,12 +76,8 @@ class MapComplex
         .filter-item:not(.active):hover { color: #777; }
         .filter-item .icon img { position: relative; display: block; width: 30px; z-index: 10; }
 
-        /* --- LAYOUT STYLES --- */
-        
-        /* The main list wrapper is now a block, not a grid, so sections stack vertically */
         .locations-list { display: block; padding: 0; }
         
-        /* New Headers and dividers */
         .locations-list h2.section-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -101,14 +86,11 @@ class MapComplex
             color: #333;
             text-transform: capitalize;
         }
-        
 
-
-        /* The Grid is now applied to the UL inside every section */
         .locations-section-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
-            gap: 1.5rem; /* Increased gap slightly for breathing room */
+            gap: 1.5rem; 
             padding: 0;
             margin-bottom: 2rem;
             list-style: none;
@@ -118,36 +100,33 @@ class MapComplex
         @media (min-width: 960px) and (max-width: 1365px) { .locations-section-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1366px) { .locations-section-grid { grid-template-columns: repeat(3, 1fr); } }
 
-        /* Individual Location Card */
         .locations-section-grid .location { display: inline-grid; grid-template-columns: 57px auto; width: 100%; margin: 0; cursor: pointer; user-select: none; align-items: start; }
+        
+        /* Set icon container to be relative for the stack */
         .locations-section-grid .location .icon { position: relative; display: block; width: 64px; height: 64px; margin-right: 1rem; }
         
-        /* Content Styling */
         .locations-section-grid .location .content { flex: 1; display: flex; flex-direction: column; justify-content: flex-start;}
         .locations-section-grid .location .content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0px; margin-top:0; line-height: 1.2; }
         
-        /* UPDATED: Vertical Meta Block (Address, Directions, Phone) */
         .locations-section-grid .location .content .meta-block {
             display: flex;
             flex-direction: column;
-            gap: 3px; /* Tight vertical spacing */
+            gap: 3px; 
             font-size: 0.95rem;
             color: #333;
             line-height: 1.4;
         }
 
-        /* Address lines are plain text */
         .locations-section-grid .location .content .meta-block div.address-line {
             color: #000;
             font-weight: 400;
         }
         
-        /* Links (Directions & Phone) are Red */
         .locations-section-grid .location .content .meta-block a {
             color: #EF3E42; 
             text-decoration: none;
             font-weight: 500;
-            display: inline-block; /* Ensures they respect the vertical stack */
+            display: inline-block;
         }
         
         .locations-section-grid .location .content .meta-block a:hover {
@@ -163,7 +142,6 @@ class MapComplex
 
   public function render($atts)
   {
-    // NOTE: replace with your actual keys as needed
     $maps_api_key = 'AIzaSyDxrZvp13o4vfImn_Ci4ypFbekQVwXF25s';
     $maps_api_key_dev = 'AIzaSyDxrZvp13o4vfImn_Ci4ypFbekQVwXF25s';
 
@@ -171,14 +149,12 @@ class MapComplex
       'id' => 'easy_locations_map_complex',
     ], $atts);
 
-    // Get locations & types
     $locations = Location::get_all_locations();
     $location_types = [];
     foreach (Location::get_all_location_types() as $location_type) {
       $location_types[$location_type['term']->slug] = $location_type;
     }
 
-    // Default filter from querystring (?filter=slug)
     $valid_values = array_keys($location_types);
     $default_filter = null;
     if (isset($_GET['filter'])) {
@@ -190,7 +166,6 @@ class MapComplex
       }
     }
 
-    // Add scripts to footer.
     add_action('wp_footer', function () use ($maps_api_key, $maps_api_key_dev, $locations, $location_types, $default_filter) {
       ob_start();
 ?>
@@ -218,12 +193,10 @@ class MapComplex
 
       <script type="text/javascript">
         (async () => {
-          // Request needed libraries.
           const { Map, InfoWindow } = await google.maps.importLibrary("maps");
           const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
           const location_types = <?= json_encode($location_types) ?>;
-
           const position_default = { lat: 42.8432136, lng: -72.3555698 };
 
           function withIntentfulInteraction(element, callback) {
@@ -295,10 +268,8 @@ class MapComplex
               this.address = address || '';
               this.types = types || [];
               this.locationsManager = locationsManager;
-              this.locationListElement = null;
               this.marker = null;
 
-              // phone helpers
               this.phone = (phone || '').toString().trim();
               this.getTelHref = () => {
                 if (!this.phone) return '';
@@ -315,17 +286,19 @@ class MapComplex
                   <div class="info-window">
                     <h3>${this.title}</h3>
                     <p>${this.address}</p>
-                    <p><a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a></p>
+                    <p><a href="https://www.google.com/maps/dir/?api=1&destination=${this.position.lat},${this.position.lng}" target="_blank">Directions</a></p>
                     ${this.getTelHref() ? `<p><a href="${this.getTelHref()}">${this.getDisplayPhone()}</a></p>` : ``}
                   </div>
                 `,
               });
               this.infoWindowState = false;
 
-              // ----- build marker content (stacked or single) -----
+              // --- MAP MARKER STACKED LOGIC ---
               this.buildMarkerContent = (filterSlug = null) => {
                 const container = document.createElement('div');
-                container.setAttribute('style', 'position:relative; display:block; width:32px; height:32px; --bottom-step:4px; --left-step:8px;');
+                container.style.position = 'relative';
+                container.style.width = '40px';
+                container.style.height = '40px';
 
                 const typesToRender = (filterSlug === null)
                   ? this.types
@@ -337,14 +310,21 @@ class MapComplex
                   const iconUrl = lt?.icon?.url || '';
                   const img = document.createElement('img');
                   img.src = iconUrl;
-                  img.alt = lt?.term ? lt.term.name : t.slug;
-                  img.dataset.slug = t.slug;
+                  
+                  // DROPPED LOGIC: 
+                  // Background icons (higher 'i') shift to the right and down.
+                  // We reverse the z-index so the first icon (i=0) stays on top.
+                  const xOffset = (filterSlug === null) ? (i * 6) : 0;
+                  const yOffset = (filterSlug === null) ? (i * -6) : 0;
+                  const z = 10 - i;
 
-                  const bottom = (filterSlug === null) ? `calc(var(--bottom-step) * ${i})` : '0';
-                  const left = (filterSlug === null) ? `calc(var(--left-step) * ${i})` : '0';
-                  const z = (filterSlug === null) ? (typesToRender.length - i) : 10;
-
-                  img.setAttribute('style', `position:absolute; top: 2px; left: 8px; width:24px; z-index:${z};`);
+                  img.setAttribute('style', `
+                    position: absolute; 
+                    width: 30px; 
+                    left: ${xOffset}px; 
+                    bottom: ${yOffset}px; 
+                    z-index: ${z};
+                  `);
                   container.appendChild(img);
                 });
 
@@ -355,19 +335,17 @@ class MapComplex
                 map: map,
                 position: this.position,
                 title: title,
-                content: this.buildMarkerContent(null) // start stacked
+                content: this.buildMarkerContent(null) 
               });
               marker.addListener('click', this.clickHandler.bind(this));
               this.marker = marker;
 
-              // API used by the manager when filters change
               this.updateMarkerIcons = (filterSlug) => {
                 this.marker.content = this.buildMarkerContent(filterSlug);
               };
 
               this.locationsManager.addLocations([this]);
 
-              // binders
               this.openInfoWindow = this.openInfoWindow.bind(this);
               this.closeInfoWindow = this.closeInfoWindow.bind(this);
               this.toggleInfoWindow = this.toggleInfoWindow.bind(this);
@@ -392,7 +370,7 @@ class MapComplex
             closeInfoWindow() { this.infoWindow.close(); this.infoWindowState = false; }
             toggleInfoWindow() { this.infoWindowState ? this.closeInfoWindow() : this.openInfoWindow(); }
 
-            // UPDATED: render accepts a specificSlug to only show that icon
+            // --- SIDEBAR LIST STACKED LOGIC ---
             render(specificSlug = null) {
               const listTypes = (specificSlug === null) ? this.types : this.types.filter(t => t.slug === specificSlug);
 
@@ -400,11 +378,17 @@ class MapComplex
                 const lt = location_types[type.slug];
                 const iconUrl = lt?.icon?.url || '';
                 const termName = lt?.term ? lt.term.name : type.slug;
-                const style = `position:absolute; top:2px; left:8px;`;
-                return `<img src="${iconUrl}" alt="${termName}" width="30px" style="${style}" />`;
+                
+                // DROPPED LOGIC:
+                // Shifts right (left offset) and down (top offset).
+                const xOffset = (specificSlug === null) ? (i * 6) : 0;
+                const yOffset = (specificSlug === null) ? (i * 6) : 0;
+                const z = 10 - i;
+                
+                const style = `position:absolute; left:${xOffset}px; top:${yOffset}px; z-index:${z}; width:30px;`;
+                return `<img src="${iconUrl}" alt="${termName}" style="${style}" />`;
               }).join('');
 
-              // FORMAT ADDRESS: Split by comma to try and get (Street) and (City, State) on new lines
               let addressHtml = '';
               if (this.address) {
                   const parts = this.address.split(',');
@@ -417,14 +401,13 @@ class MapComplex
                   }
               }
 
-              // TEMPLATE: Vertical Stack
               const template = `
-                <div class="icon">${iconsHtml}</div>
+                <div class="icon" style="position:relative; width:45px; height:45px;">${iconsHtml}</div>
                 <div class="content">
                   <h3>${this.title}</h3>
                   <div class="meta-block">
                      ${addressHtml}
-                     <a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank">Directions</a>
+                     <a href="https://www.google.com/maps/dir/?api=1&destination=${this.position.lat},${this.position.lng}" target="_blank">Directions</a>
                      ${this.phone ? `<a href="${this.getTelHref()}">${this.getDisplayPhone()}</a>` : ''}
                   </div>
                 </div>
@@ -433,17 +416,14 @@ class MapComplex
               const element = document.createElement('li');
               element.innerHTML = template;
               element.classList.add('location');
-              element.setAttribute('data-location-id', this.ID);
 
               withIntentfulInteraction(element, () => {
-                // scroll to map
                 const mapElement = document.getElementById('map');
                 const mapRect = mapElement.getBoundingClientRect();
                 const windowHeight = window.innerHeight;
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 const targetScrollTop = scrollTop + mapRect.top - (windowHeight / 2) + (mapRect.height / 2);
                 window.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
-                
                 this.openInfoWindow();
               });
               
@@ -463,14 +443,13 @@ class MapComplex
               this.locationsListElement = locationsListElement;
               this.mapInstance = mapInstance;
               this.bounds = new google.maps.LatLngBounds();
-
               this.activeFilterSlug = null;
             }
 
             addLocations(locs) {
               this.locations = this.locations.concat(locs);
               locs.forEach(location => {
-                if (location && location.position && typeof location.position.lat === 'number' && typeof location.position.lng === 'number' && !isNaN(location.position.lat) && !isNaN(location.position.lng)) {
+                if (location && location.position && typeof location.position.lat === 'number') {
                   this.bounds.extend(location.position);
                 }
               });
@@ -479,7 +458,6 @@ class MapComplex
 
             updateMapLocations(slug) {
               this.activeFilterSlug = slug;
-
               for (const location of this.locations) {
                 location.closeInfoWindow();
                 location.updateMarkerIcons(slug);
@@ -498,7 +476,6 @@ class MapComplex
                   location.marker.setMap(null);
                 }
               }
-
               this.renderLocationsList();
             }
 
@@ -507,10 +484,6 @@ class MapComplex
                 location.infoWindow.close();
                 location.infoWindowState = false;
               });
-            }
-            
-            closeAllLocationsDrawers() {
-               // Deprecated
             }
 
             renderFiltersList() {
@@ -525,27 +498,13 @@ class MapComplex
 
               withIntentfulInteraction(resetElement, () => {
                 this.filtersList.forEach(filter => filter.activate());
-                this.updateMapLocations(null); // clears activeFilterSlug
-
-                const mapElement = document.getElementById('map');
-                const mapRect = mapElement.getBoundingClientRect();
-                const windowHeight = window.innerHeight;
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                const targetScrollTop = scrollTop + mapRect.top - (windowHeight / 2) + (mapRect.height / 2);
-                window.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
-
-                if (!this.bounds.isEmpty()) {
-                  this.mapInstance.fitBounds(this.bounds);
-                } else {
-                  this.mapInstance.setCenter({ lat: 42.8432136, lng: -72.3555698 });
-                  this.mapInstance.setZoom(8);
-                }
+                this.updateMapLocations(null); 
+                if (!this.bounds.isEmpty()) this.mapInstance.fitBounds(this.bounds);
               });
 
               this.filterListElement.appendChild(resetElement);
             }
 
-            // Renders sections with Headers, Dividers, and Grids
             renderLocationsList() {
               this.locationsListElement.innerHTML = '';
               const activeFilters = this.filtersList.filter(f => f.active);
@@ -553,32 +512,22 @@ class MapComplex
               activeFilters.forEach(filter => {
                   const filterSlug = filter.type.term.slug;
                   const filterName = filter.type.term.name;
+                  const sectionLocations = this.locations.filter(loc => loc.types.some(t => t.slug === filterSlug));
                   
-                  // Find locations that belong to this specific category
-                  const sectionLocations = this.locations.filter(loc => {
-                      return loc.types.some(t => t.slug === filterSlug);
-                  });
+                  if(sectionLocations.length === 0) return; 
                   
-                  if(sectionLocations.length === 0) return; // Skip empty sections
-                  
-                  // 1. Create Title
                   const title = document.createElement('h2');
                   title.innerText = filterName;
                   title.className = 'section-title';
                   this.locationsListElement.appendChild(title);
                   
-               
-                  
-                  // 3. Create Grid Container
                   const grid = document.createElement('ul');
                   grid.className = 'locations-section-grid';
                   
-                  // 4. Populate Grid
                   sectionLocations.forEach(loc => {
-                      // Pass the filterSlug so the location renders only THAT icon
-                      grid.appendChild(loc.render(filterSlug));
+                      // Only pass null if we want the stacked look
+                      grid.appendChild(loc.render(this.activeFilterSlug ? filterSlug : null));
                   });
-                  
                   this.locationsListElement.appendChild(grid);
               });
             }
@@ -603,17 +552,7 @@ class MapComplex
           }
 
           let map = await initMap();
-
-          const locations = <?= json_encode($locations) ?>;
-
-          // sort for list presentation (optional)
-          locations.sort((a, b) => {
-            const aType = (a.location_type && a.location_type[0] && a.location_type[0].name) ? a.location_type[0].name.toLowerCase() : '';
-            const bType = (b.location_type && b.location_type[0] && b.location_type[0].name) ? b.location_type[0].name.toLowerCase() : '';
-            if (aType < bType) return -1;
-            if (aType > bType) return 1;
-            return a.name.localeCompare(b.name);
-          });
+          const locations_data = <?= json_encode($locations) ?>;
 
           const filterListElement = document.querySelector('.filter-list');
           const locationsListElement = document.querySelector('.locations-list');
@@ -626,33 +565,16 @@ class MapComplex
             map
           );
 
-          const location_markers = locations.map(loc => {
+          locations_data.forEach(loc => {
             const hasTypes = Array.isArray(loc.location_type) && loc.location_type.length;
-            if (!hasTypes) return null;
+            if (!hasTypes) return;
+            new Location(map, loc.name, loc.address, loc.location_type, loc.lat, loc.lng, locationsManager, loc.phone || '');
+          });
 
-            // ensure provided types exist in master list
-            for (const t of loc.location_type) {
-              if (!location_types[t.slug]) return null;
-            }
-
-            return new Location(
-              map,
-              loc.name,
-              loc.address,
-              loc.location_type,
-              loc.lat,
-              loc.lng,
-              locationsManager,
-              loc.phone || ''
-            );
-          }).filter(Boolean);
-
-          // show only relevant filters
           locationsManager.filtersList.forEach(f => f.checkIfShouldShow());
           locationsManager.renderFiltersList();
           locationsManager.renderLocationsList();
 
-          // default filter from querystring
           const default_filter = '<?= $default_filter ?>';
           if (default_filter !== '') {
             const df = locationsManager.filtersList.find(f => f.type.term.slug === default_filter);
@@ -670,25 +592,14 @@ class MapComplex
     <div class="easy-locations-map-complex">
       <section id="hero" class="page-section half-window-height no-padding flex justify-center align-center" style="margin-top:0px; padding-top:0px; padding-bottom:0px; margin-bottom:0px;">
         <div class="section-background-group">
-          <div class="background-underlay "></div>
-          <div class="background-image " data-fixed="true"></div>
           <div class="map" id="map"></div>
         </div>
       </section>
 
       <div class="map-filter">
         <figure class="map-filter">
-          <ul class="filter-list">
-            <?php foreach ($location_types as $key => $type) { ?>
-              <li class="filter-item active" data-filter="<?= esc_attr($key) ?>" data-active="true">
-                <span class="icon">
-                  <img src="<?= $type['icon'] && $type['icon']['url'] ? esc_url($type['icon']['url']) : ''; ?>" alt="<?= esc_attr($type['term']->name); ?>" width="30px" />
-                </span><?= esc_html($type['term']->name); ?>
-              </li>
-            <?php } ?>
-          </ul>
+          <ul class="filter-list"></ul>
         </figure>
-
         <hr />
         <div class="locations-list"></div>
       </div>
