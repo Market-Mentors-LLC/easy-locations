@@ -20,6 +20,39 @@ class MapMash
         :root { --filter-gap:.75rem; --mm-dark:#252525; --mm-gray:#e6e6e6; --mm-mid:#6f6f6f; }
         .easy-locations-map-mash { position: relative; }
 
+        /* -------- State Filter Bar -------- */
+        .state-filter-bar { 
+          display: flex; 
+          background-color: #9f2024; 
+          justify-content: space-evenly; 
+          align-items: center; 
+          padding: 0px 0; 
+        }
+        .state-btn { 
+          background: transparent; 
+          border: 3px solid transparent; 
+          outline: none; 
+          padding: 4px 16px; 
+          cursor: pointer; 
+          color: #fff; 
+          font-family: 'Oswald', sans-serif; 
+          font-size: 28px; 
+          font-weight: bold; 
+          text-transform: uppercase; 
+          transition: border-color 0.2s ease;
+        }
+        .state-btn.active { 
+          border-color: #fff; 
+        }
+        .state-btn:hover { 
+          border-color: rgba(255, 255, 255, 0.5); 
+        }
+        @media (max-width: 640px) { 
+          .state-btn { font-size: 18px; padding: 4px 10px; } 
+          .state-filter-bar { flex-direction: column; gap: 10px; padding: 10px 0; }
+        }
+
+        /* -------- Map Controls & Material Filters -------- */
         .map-controls { display:block; width:100%; border-bottom:#252525; margin:0 0 12px 0; }
         .map-reset-text { text-align:center; margin-top:1rem; margin-bottom:-10px; font-family:'Oswald',sans-serif; font-weight:bold; }
         .map-reset-text a { cursor:pointer; color:#1e73be; }
@@ -57,13 +90,8 @@ class MapMash
         .mm-contact-name { font-weight:700; }
         .mm-contact a { text-decoration:none; }
 
-        .mm-contact-info a:hover {
-  color: #3a3a3a;
-}
-
-.mm-actions a:hover {
-  color: #3a3a3a;
-}
+        .mm-contact-info a:hover { color: #3a3a3a; }
+        .mm-actions a:hover { color: #3a3a3a; }
 
       </style>
       <?php echo ob_get_clean();
@@ -121,7 +149,7 @@ class MapMash
 
           const location_types = <?= json_encode($location_types) ?>;
           const rawLocations   = <?= json_encode($locations) ?>;
-          const position_default = { lat: 42.8432136, lng: -72.3555698 };
+          const position_default = { lat: 31.5, lng: -82.5 }; 
 
           function withIntentfulInteraction(el, cb) {
             let down;
@@ -178,6 +206,15 @@ class MapMash
               this.contact  = loc.contact || {};
               if (!loc.lat || !loc.lng) throw new Error('Location must have coordinates.');
               this.position = { lat: parseFloat(loc.lat), lng: parseFloat(loc.lng) };
+
+              // Check if location is in Florida or Georgia by parsing address
+              this.state = 'other';
+              const addrUpper = this.address.toUpperCase();
+              if (/\bFL\b/.test(addrUpper) || /\bFLORIDA\b/.test(addrUpper)) {
+                  this.state = 'FL';
+              } else if (/\bGA\b/.test(addrUpper) || /\bGEORGIA\b/.test(addrUpper)) {
+                  this.state = 'GA';
+              }
 
               const primaryTerm = this.types?.[0] || null;
               const primaryType = primaryTerm ? location_types[primaryTerm.slug] : null;
@@ -262,6 +299,8 @@ class MapMash
             constructor(mapInstance, filtersList) {
               this.mapInstance = mapInstance;
               this.firstInteractionDone = false;
+              this.activeState = 'all'; 
+              
               this.filtersList = filtersList.map(f => {
                 f.locationsManager = this;
                 f.onToggle = (slug, requestedActiveState) => {
@@ -281,11 +320,36 @@ class MapMash
 
             isAllActive() { return this.activeSlugs.size === Object.keys(location_types).length; }
             add(loc) { this.locations.push(loc); this.bounds.extend(loc.position); }
+            
             fit() { if (!this.bounds.isEmpty()) this.mapInstance.fitBounds(this.bounds); }
+            
+            // Adjust bounds based only on currently visible markers
+            fitVisible() {
+              const visibleBounds = new google.maps.LatLngBounds();
+              let hasVisible = false;
+              this.locations.forEach(loc => {
+                if (loc.marker.map) {
+                  visibleBounds.extend(loc.position);
+                  hasVisible = true;
+                }
+              });
+              if (hasVisible) {
+                this.mapInstance.fitBounds(visibleBounds);
+              } else {
+                 this.fit(); 
+              }
+            }
+
+            // New Method for State Filtering
+            setState(stateCode) {
+              this.activeState = stateCode;
+              this.updateAllMarkers();
+              this.fitVisible(); 
+            }
+
             setActive(slug, isActive) {
               if (isActive) this.activeSlugs.add(slug); else this.activeSlugs.delete(slug);
               this.updateAllMarkers();
-              this.filtersList.forEach(f => { if (f.type.term.slug === slug) f.setActive(isActive); });
             }
             activateAll() {
               this.activeSlugs = new Set(Object.keys(location_types));
@@ -301,10 +365,15 @@ class MapMash
             updateAllMarkers() {
               const active = this.activeSlugs;
               const showNothing = active.size === 0;
+              
               this.locations.forEach(loc => {
                 loc.updateMarkerIcons(active);
                 const hasAnyActive = loc.types.some(t => active.has(t.slug));
-                const shouldShow = !showNothing && hasAnyActive;
+                
+                // Add state filter logic to visibility checks
+                const stateMatches = this.activeState === 'all' || loc.state === this.activeState;
+                
+                const shouldShow = !showNothing && hasAnyActive && stateMatches;
                 loc.marker.map = shouldShow ? this.mapInstance : null;
               });
             }
@@ -315,7 +384,16 @@ class MapMash
               if (resetContainer) {
                 resetContainer.innerHTML = 'Select any of our materials by clicking the icons below. <a class="reset-map-link">Click here</a> to reset the map.';
                 const resetLink = resetContainer.querySelector('.reset-map-link');
-                if (resetLink) { withIntentfulInteraction(resetLink, () => { this.activateAll(); this.fit(); }); }
+                if (resetLink) { 
+                  withIntentfulInteraction(resetLink, () => { 
+                    this.activateAll();
+                    // Reset state buttons as well
+                    document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector('.state-btn[data-state="all"]').classList.add('active');
+                    this.setState('all');
+                    this.fit(); 
+                  }); 
+                }
               }
             }
             closeAllInfoWindows() { this.locations.forEach(l => l.infoWindow.close()); }
@@ -355,6 +433,20 @@ class MapMash
           locationsManager.fit();
           locationsManager.updateAllMarkers();
 
+          // Apply state button event listeners
+          const stateBtns = document.querySelectorAll('.state-btn');
+          stateBtns.forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                  // Update Active CSS state
+                  stateBtns.forEach(b => b.classList.remove('active'));
+                  e.currentTarget.classList.add('active');
+                  
+                  // Apply filter logic
+                  const selectedState = e.currentTarget.getAttribute('data-state');
+                  locationsManager.setState(selectedState);
+              });
+          });
+
           const default_filter = '<?= $default_filter ?: '' ?>';
           if (default_filter) {
             locationsManager.activateOnly(default_filter);
@@ -367,6 +459,12 @@ class MapMash
 
     ob_start(); ?>
     <div class="easy-locations-map-mash">
+      <div class="state-filter-bar">
+        <button type="button" class="state-btn active" data-state="all">ALL STATES</button>
+        <button type="button" class="state-btn" data-state="FL">FLORIDA</button>
+        <button type="button" class="state-btn" data-state="GA">GEORGIA</button>
+      </div>
+
       <div class="map-controls">
         <p class="map-reset-text"></p>
         <ul class="filter-list"></ul>
