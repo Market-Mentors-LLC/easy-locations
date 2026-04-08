@@ -20,7 +20,7 @@ class MapMash
         :root { --filter-gap:.75rem; --mm-dark:#252525; --mm-gray:#e6e6e6; --mm-mid:#6f6f6f; }
         .easy-locations-map-mash { position: relative; }
 
-/* -------- State Filter Bar -------- */
+        /* -------- State Filter Bar -------- */
         .state-filter-bar { 
           display: flex; 
           background-color: #9f2024; 
@@ -29,8 +29,8 @@ class MapMash
           padding: 10px 0; 
         }
         .state-btn { 
-          background-color: transparent !important; /* Forces out any theme default backgrounds */
-          border: none !important; /* Kills the weird box effect */
+          background: transparent; 
+          border: 3px solid transparent; 
           outline: none; 
           padding: 4px 16px; 
           cursor: pointer; 
@@ -39,18 +39,14 @@ class MapMash
           font-size: 28px; 
           font-weight: bold; 
           text-transform: uppercase; 
-          transition: opacity 0.2s ease;
         }
         .state-btn.active { 
-          /* Replaces the box with a clean underline for the active state */
-          text-decoration: underline;
-          text-underline-offset: 8px;
-          text-decoration-thickness: 3px;
+          border-color: #fff; 
+          background-color: #9f2024; 
         }
         .state-btn:hover { 
-          background-color: transparent !important;
-          border: none !important;
-          opacity: 0.7; /* Just a simple, clean text fade on hover */
+          border-color: #fff; 
+          background-color: #9f2024; 
         }
         @media (max-width: 640px) { 
           .state-btn { font-size: 18px; padding: 4px 10px; } 
