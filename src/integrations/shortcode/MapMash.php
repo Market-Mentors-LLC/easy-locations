@@ -205,7 +205,8 @@ class MapMash
               this.phone   = (loc.phone || '').toString().trim();
               this.category = (loc.category || '').toString().trim();
               this.contact  = loc.contact || {};
-              if (!loc.lat || !loc.lng) throw new Error('Location must have coordinates.');
+              
+              // Coordinates verified before creation in the loop below
               this.position = { lat: parseFloat(loc.lat), lng: parseFloat(loc.lng) };
 
               // Check if location is in Florida or Georgia by parsing address
@@ -303,7 +304,7 @@ class MapMash
                 content: this.buildMarkerContent(null)
               });
 
-              this.marker.addListener('click', () => {
+              this.marker.addListener('gmp-click', () => {
                 this.locationsManager.closeAllInfoWindows();
                 this.infoWindow.open(this.map, this.marker);
               });
@@ -340,7 +341,7 @@ class MapMash
             isAllActive() { return this.activeSlugs.size === Object.keys(location_types).length; }
             add(loc) { this.locations.push(loc); this.bounds.extend(loc.position); }
             
-fit() { 
+            fit() { 
               if (!this.bounds.isEmpty()) {
                 // The "100" adds 100px of padding around the markers, forcing the map to zoom out
                 this.mapInstance.fitBounds(this.bounds, 100); 
@@ -452,6 +453,13 @@ fit() {
             for (const t of loc.location_type) {
               if (!location_types[t.slug]) return;
             }
+
+            // FIX: Gracefully skip locations without coordinates instead of crashing
+            if (!loc.lat || !loc.lng) {
+                console.warn('Skipping location due to missing coordinates:', loc.name || loc.address);
+                return; 
+            }
+
             const l = new SimpleLocation(map, loc, locationsManager);
             locationsManager.add(l);
           });
