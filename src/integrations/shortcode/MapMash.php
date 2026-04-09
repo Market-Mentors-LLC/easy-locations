@@ -340,7 +340,12 @@ class MapMash
             isAllActive() { return this.activeSlugs.size === Object.keys(location_types).length; }
             add(loc) { this.locations.push(loc); this.bounds.extend(loc.position); }
             
-            fit() { if (!this.bounds.isEmpty()) this.mapInstance.fitBounds(this.bounds); }
+fit() { 
+              if (!this.bounds.isEmpty()) {
+                // The "100" adds 100px of padding around the markers, forcing the map to zoom out
+                this.mapInstance.fitBounds(this.bounds, 100); 
+              }
+            }
             
             // Adjust bounds based only on currently visible markers
             fitVisible() {
@@ -353,7 +358,8 @@ class MapMash
                 }
               });
               if (hasVisible) {
-                this.mapInstance.fitBounds(visibleBounds);
+                // Also apply padding when filtering states so it doesn't zoom too tightly on clusters
+                this.mapInstance.fitBounds(visibleBounds, 100);
               } else {
                  this.fit(); 
               }
