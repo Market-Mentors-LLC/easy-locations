@@ -247,8 +247,15 @@ class Location
       while ($query->have_posts()) {
         $query->the_post();
 
-        $contact = (array) get_field('contact_group') ?: [];
-        $photo   = isset($contact['contact_photo']) && is_array($contact['contact_photo']) ? $contact['contact_photo'] : null;
+$contact = (array) get_field('contact_group') ?: [];
+        $photo   = isset($contact['contact_photo']) && is_array($contact['contact_photo']) && !empty($contact['contact_photo']['url']) ? $contact['contact_photo'] : null;
+
+        // Fallback: If no contact photo exists, grab the location's featured image
+        if ( ! $photo && has_post_thumbnail() ) {
+            $photo = [
+                'url' => get_the_post_thumbnail_url( get_the_ID(), 'thumbnail' )
+            ];
+        }
 
         $locations[] = [
           'id'            => get_the_ID(),
