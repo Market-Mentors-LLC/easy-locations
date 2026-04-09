@@ -224,12 +224,28 @@ class MapMash
               const typeName    = (primaryType?.term?.name || '').toString();
               const subLabel    = this.category ? this.category : (typeName ? `${typeName} Plant` : 'Plant');
 
-              const email    = (this.contact?.email || '').toString().trim();
-              const emailHref= email ? `mailto:${email}` : '';
-              const cName    = (this.contact?.name || '').toString().trim();
-              const cPhoto   = (this.contact?.photo?.url || '');
+              // 1. Swap contact email for contact phone
+              // (Checks for 'phone', 'direct_phone', or falls back to 'email' if the field key wasn't changed in the DB yet)
+              const contactPhone = (this.contact?.phone || this.contact?.direct_phone || this.contact?.email || '').toString().trim();
+              const contactPhoneHref = contactPhone ? `tel:${contactPhone.replace(/[^0-9+]/g, '')}` : '';
+              
+              const cName    = (this.contact?.name || 'Plant Direct Phone Number').toString().trim();
+              
+              // 3. Featured image fallback fix
+              // We check multiple common keys in case the backend Location model formats the featured image differently
+              let fallbackImg = '';
+              if (loc.featured_image?.url) fallbackImg = loc.featured_image.url;
+              else if (typeof loc.featured_image === 'string') fallbackImg = loc.featured_image;
+              else if (typeof loc.image === 'string') fallbackImg = loc.image;
+              else if (typeof loc.thumbnail === 'string') fallbackImg = loc.thumbnail;
 
-              const infoHTML = `
+              const cPhoto   = (this.contact?.photo?.url || fallbackImg || '');
+
+              // 2. Main phone moved below directions
+              const mainPhone = this.phone;
+              const mainPhoneHref = mainPhone ? `tel:${mainPhone.replace(/[^0-9+]/g, '')}` : '';
+
+            const infoHTML = `
                 <div class="mm-infowindow">
                   <div class="mm-card">
                     <div class="mm-top">
@@ -239,19 +255,21 @@ class MapMash
                         <div class="mm-sub">${subLabel.toUpperCase()}</div>
                         <div class="mm-address">${addrLine1}${addrLine2 ? `<br>${addrLine2}` : ''}</div>
                         <div class="mm-actions">
-                          <a href="https://www.google.com/maps/search/?api=1&query=${this.position.lat},${this.position.lng}" target="_blank" rel="noopener">Directions</a>
+                          <a href="https://www.google.com/maps/dir/?api=1&destination=${this.position.lat},${this.position.lng}" target="_blank" rel="noopener">Directions</a>
+                          ${mainPhone ? `<div style="margin-top: 5px; font-size: 14px; font-weight: bold;"><a href="${mainPhoneHref}" style="color: #3a3a3a;">${mainPhone}</a></div>` : ''}
                         </div>
                       </div>
                     </div>
+                    ${contactPhone ? `
                     <div class="mm-divider">YOUR CONTACT INFO</div>
                     <div class="mm-contact">
-                      <div class="mm-avatar">${cPhoto ? `<img src="${cPhoto}" alt="${cName || 'Contact'}">` : ''}</div>
+                      <div class="mm-avatar">${cPhoto ? `<img src="${cPhoto}" alt="${cName}">` : ''}</div>
                       <div class="mm-contact-info">
                         ${cName ? `<div class="mm-contact-name">${cName}</div>` : ''}
-                        ${this.phone ? `<div>${this.phone}</div>` : ''}
-                        ${email ? `<div><a href="${emailHref}">${email}</a></div>` : ''}
+                        <div><a href="${contactPhoneHref}">${contactPhone}</a></div>
                       </div>
                     </div>
+                    ` : ''}
                   </div>
                 </div>
               `;

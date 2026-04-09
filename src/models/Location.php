@@ -156,11 +156,11 @@ class Location
               'name'  => 'contact_name',
               'type'  => 'text',
             ],
-            [
-              'key'   => 'field_contact_email',
-              'label' => 'Contact Email',
-              'name'  => 'contact_email',
-              'type'  => 'email',
+   [
+              'key'   => 'field_contact_phone',
+              'label' => 'Contact Phone',
+              'name'  => 'phone',
+              'type'  => 'text',
             ],
           ],
         ],
@@ -259,9 +259,9 @@ class Location
           'address'       => (string) get_field('address'),
           'phone'         => (string) get_field('phone'),
           'category'      => (string) get_field('category'),
-          'contact'       => [
+        'contact'       => [
             'name'  => isset($contact['contact_name'])  ? (string) $contact['contact_name']  : '',
-            'email' => isset($contact['contact_email']) ? (string) $contact['contact_email'] : '',
+            'phone' => isset($contact['phone'])         ? (string) $contact['phone']         : '',
             'photo' => $photo, // array or null
           ],
         ];
