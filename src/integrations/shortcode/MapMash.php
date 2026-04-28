@@ -291,7 +291,7 @@ class MapMash
                   const bottom = `calc(var(--bottom-step) * ${i})`;
                   const left   = `calc(var(--left-step) * ${i})`;
                   const z      = (typesToRender.length - i);
-                  img.style.cssText = `position:absolute;bottom:${bottom};left:${left};width:45px;z-index:${z};`;
+                  img.style.cssText = `position:absolute;bottom:${bottom};left:${left};width:36px;z-index:${z};`;
                   container.appendChild(img);
                 });
                 return container;
@@ -343,8 +343,8 @@ class MapMash
             
             fit() { 
               if (!this.bounds.isEmpty()) {
-                // The "100" adds 100px of padding around the markers, forcing the map to zoom out
-                this.mapInstance.fitBounds(this.bounds, 100); 
+                // This adds padding around the markers, forcing the map to zoom out
+                this.mapInstance.fitBounds(this.bounds, 80); 
               }
             }
             
@@ -360,7 +360,7 @@ class MapMash
               });
               if (hasVisible) {
                 // Also apply padding when filtering states so it doesn't zoom too tightly on clusters
-                this.mapInstance.fitBounds(visibleBounds, 100);
+                this.mapInstance.fitBounds(visibleBounds, 80);
               } else {
                  this.fit(); 
               }
