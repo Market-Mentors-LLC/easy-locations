@@ -101,8 +101,8 @@ class MapMash
 
   public function render($atts)
   {
-    $maps_api_key     = 'AIzaSyAvdJa5-XhoMP0ut39PMirYLBIuXKB_8aA';
-    $maps_api_key_dev = 'AIzaSyAvdJa5-XhoMP0ut39PMirYLBIuXKB_8aA';
+    $maps_api_key     = 'AIzaSyB222K_o0vn8hr2JrM-Mrydfg7ELbb7Vxo';
+    $maps_api_key_dev = 'AIzaSyB222K_o0vn8hr2JrM-Mrydfg7ELbb7Vxo';
 
     $atts = shortcode_atts(['id' => 'easy_locations_map_mash'], $atts);
 
